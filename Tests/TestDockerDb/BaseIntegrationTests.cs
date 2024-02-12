@@ -19,6 +19,11 @@ public class BaseIntegrationTests : IClassFixture<StuddGokApiWebAppFactory>, IDi
         //UserService = _scope.ServiceProvider.GetService<IUserService>();
     }
 
+    protected T? GetService<T>() where T : class
+    {
+        return _scope.ServiceProvider.GetService<T>();
+    }
+
     public void Dispose()
     {
         Client?.Dispose();

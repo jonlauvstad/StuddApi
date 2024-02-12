@@ -17,8 +17,6 @@ public class AssignmentMapper : IMapper<Assignment, AssignmentDTO>
             Deadline = model.Deadline,
 
             AssignmentResults = model.AssignmentResults,
-            //CourseImplementationName = model.CourseImplementation!.Name,
-            //CourseImplementationCode = model.CourseImplementation.Code,
         };
         if (model.CourseImplementation != null)
         {

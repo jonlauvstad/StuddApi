@@ -1,8 +1,11 @@
 ﻿using StuddGokApi.DTMs;
+using StuddGokApi.Models;
 
 namespace StuddGokApi.Repositories.Interfaces;
 
 public interface IVenueRepository
 {
-    Task<Event?> CheckVenue(int venueId, DateTime from, DateTime to); 
+    Task<Event?> CheckVenueAsync(int venueId, DateTime from, DateTime to);
+    Task<Venue?> GetVenueByIdAsync(int id);
+    Task<LectureVenue?> AddLectureVenueAsync(LectureVenue lectureVenue);
 }

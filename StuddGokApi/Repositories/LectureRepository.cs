@@ -7,6 +7,7 @@ using StuddGokApi.DTMs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using System.Diagnostics;
+using System.Transactions;
 
 namespace StuddGokApi.Repositories;
 
@@ -55,10 +56,66 @@ public class LectureRepository : ILectureRepository
 
     public async Task<Lecture?> AddLectureAsync(Lecture lecture)
     {
+        
         EntityEntry e = await _dbContext.Lectures.AddAsync(lecture);
         await _dbContext.SaveChangesAsync();
         object o = e.Entity;
         if (o is Lecture) { return (Lecture)o; }
         return null;
+
+    }
+
+    public async Task<(Lecture?, LectureVenue?)> AddLectureAndVenueAsync(Lecture lecture, int venueId)
+    {
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        Lecture? l = null;
+        LectureVenue? lec_ven = null;
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    EntityEntry e = await _dbContext.Lectures.AddAsync(lecture);
+                    await _dbContext.SaveChangesAsync();
+                    l = lecture;
+                    int lectureId = lecture.Id;
+
+                    LectureVenue lv = new LectureVenue
+                    {
+                        LectureId = lectureId,
+                        VenueId = venueId,
+                    };
+                    EntityEntry ev = await _dbContext.LectureVenues.AddAsync(lv);
+                    await _dbContext.SaveChangesAsync();
+                    lec_ven = lv;
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    //throw;
+                }
+            }
+        });
+        return (l, lec_ven);        
+    }
+
+    public async Task<Lecture?> DeleteLectureByIdAsync(int id)
+    {
+        Lecture? lecture = await GetLectureById(id);
+        if (lecture == null)
+        {
+            return null;
+        }
+        int numDeleted = await _dbContext.Lectures.Where(x => x.Id == id).ExecuteDeleteAsync();
+        if (numDeleted == 0)
+        {
+            return null;
+        }
+        return lecture;
     }
 }

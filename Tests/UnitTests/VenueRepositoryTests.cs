@@ -41,7 +41,7 @@ public class VenueRepositoryTests : IClassFixture<TestFixture>
         };
 
         // Act
-        Event ev = await _venueRepo.CheckVenue(2, new DateTime(2024, 5, 22, 9, 0, 0), new DateTime(2024, 5, 22, 14, 0, 0));
+        Event? ev = await _venueRepo.CheckVenueAsync(2, new DateTime(2024, 5, 22, 9, 0, 0), new DateTime(2024, 5, 22, 14, 0, 0));
 
         // Assert
         Assert.NotNull(ev);
@@ -55,7 +55,7 @@ public class VenueRepositoryTests : IClassFixture<TestFixture>
     public async void CheckVenue_When_VenueId_to_from_given_ShouldReturn_EmptyIEnumerable()
     {
         // Act
-        Event ev = await _venueRepo.CheckVenue(2, new DateTime(2024, 6, 23, 9, 0, 0), new DateTime(2024, 6, 23, 14, 0, 0));
+        Event? ev = await _venueRepo.CheckVenueAsync(2, new DateTime(2024, 6, 23, 9, 0, 0), new DateTime(2024, 6, 23, 14, 0, 0));
 
         // Assert
         Assert.Null(ev);

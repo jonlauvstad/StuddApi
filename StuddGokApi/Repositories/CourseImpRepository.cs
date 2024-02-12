@@ -14,9 +14,23 @@ public class CourseImpRepository : ICourseImpRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<CourseImplementation>> GetCourseImpsAsync()
+    public async Task<CourseImplementation?> GetCourseImpByIdAsync(int id)
     {
-        IEnumerable<CourseImplementation> cimps = await _dbContext.CourseImplementations.ToListAsync();
+        IEnumerable<CourseImplementation> cis = await _dbContext.CourseImplementations.Where(x => x.Id == id).ToListAsync();
+
+        CourseImplementation? ci = cis.FirstOrDefault();
+        if (ci == null) { return null; }
+       
+        return ci;
+    }
+
+    public async Task<IEnumerable<CourseImplementation>> GetCourseImpsAsync(DateTime? startDate, DateTime? endDate)
+    {
+        IEnumerable<CourseImplementation> cimps = await _dbContext.CourseImplementations
+            .Where(x => startDate == null ? true : x.StartDate >= startDate)
+            .Where(x => endDate == null ? true : x.EndDate >= endDate)
+            .ToListAsync();
         return cimps.OrderBy(x => x.Id);
     }
+
 }

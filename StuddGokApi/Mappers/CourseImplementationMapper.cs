@@ -7,6 +7,16 @@ public class CourseImplementationMapper : IMapper<CourseImplementation, CourseIm
 {
     public CourseImplementationDTO MapToDTO(CourseImplementation model)
     {
+        IEnumerable<ProgramCourse> pcs = model.ProgramCourses.Where(x => x.CourseImplementationId == model.Id);
+        IEnumerable<ProgramImplementation> pis = from pc in pcs select pc.ProgramImplementation;
+        //List<StudentProgram> sps = new List<StudentProgram>();
+        int numStudents = 0;
+        foreach (ProgramImplementation pc in pis) 
+        {
+            //sps.AddRange(pc.StudentPrograms);
+            numStudents += pc.StudentPrograms.Count;
+        }
+
         return new CourseImplementationDTO
         {
             Id = model.Id,
@@ -14,7 +24,8 @@ public class CourseImplementationMapper : IMapper<CourseImplementation, CourseIm
             Name = model.Name,
             CourseId = model.CourseId,
             StartDate = model.StartDate,
-            EndDate = model.EndDate
+            EndDate = model.EndDate,
+            NumStudents = numStudents,
         };
     }
 

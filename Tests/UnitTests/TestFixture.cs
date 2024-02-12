@@ -1,6 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using StuddGokApi.Data;
+using StuddGokApi.Repositories;
+using StuddGokApi.Repositories.Interfaces;
+using StuddGokApi.Services;
+using StuddGokApi.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +16,10 @@ namespace UnitTests;
 
 public class TestFixture : IDisposable
 {
-
     public StuddGokDbContext DbContext { get; }
+    public ILectureRepository LectureRepository { get; }
+    public IVenueRepository VenueRepository { get; }
+    //public ILectureService LectureService { get; }
 
     public TestFixture()
     {
@@ -29,6 +36,10 @@ public class TestFixture : IDisposable
             .Options;
 
         DbContext = new StuddGokDbContext(options);
+
+        LectureRepository = new LectureRepository(DbContext);
+        VenueRepository = new VenueRepository(DbContext);
+        //LectureService = new LectureService(LectureRepository, VenueRepository);
     }
 
         public void Dispose()

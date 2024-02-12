@@ -25,5 +25,5 @@ public class CourseImplementationDTO
     //public virtual Course? Course { get; set; }
     public string CourseLink { get => $"/Course/{CourseId}"; }
     public string Link { get => $"/CourseImplementation/{Id}"; }
-
+    public int NumStudents { get; set; }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StuddGokApi.Data;
 using StuddGokApi.DTMs;
 using StuddGokApi.Models;
@@ -15,7 +16,16 @@ public class VenueRepository : IVenueRepository
         _dbContext = dbContext;
     }
 
-    public async Task<Event?> CheckVenue(int venueId, DateTime from, DateTime to)
+    public async Task<LectureVenue?> AddLectureVenueAsync(LectureVenue lectureVenue)
+    {
+        EntityEntry e = await _dbContext.LectureVenues.AddAsync(lectureVenue);
+        await _dbContext.SaveChangesAsync();
+        object o = e.Entity;
+        if (o is LectureVenue) { return (LectureVenue)o; }
+        return null;
+    }
+
+    public async Task<Event?> CheckVenueAsync(int venueId, DateTime from, DateTime to)
     {
         List<Event> events = new List<Event>();
 
@@ -50,5 +60,14 @@ public class VenueRepository : IVenueRepository
         IEnumerable<Event> evs = events.Where(x => x.Time < to && x.TimeEnd > from);
         if (evs.Any()) { return evs.First(); }
         return null;
+    }
+
+    public async Task<Venue?> GetVenueByIdAsync(int id)
+    {
+        IEnumerable<Venue> vs = await _dbContext.Venues.Where(x => x.Id == id).ToListAsync();
+
+        Venue? v = vs.FirstOrDefault();
+        if (v == null) { return null; }
+        return v;
     }
 }

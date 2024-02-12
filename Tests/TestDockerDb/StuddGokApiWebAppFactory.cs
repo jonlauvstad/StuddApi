@@ -52,7 +52,7 @@ public class StuddGokApiWebAppFactory : WebApplicationFactory<Program>, IAsyncLi
                     {
                         builder.EnableRetryOnFailure();
                     });
-            });
+            }).AddLogging(log => Console.WriteLine(log));
         });
     }
 
