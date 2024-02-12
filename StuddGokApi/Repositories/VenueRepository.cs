@@ -62,6 +62,12 @@ public class VenueRepository : IVenueRepository
         return null;
     }
 
+    public async Task<IEnumerable<Venue>> GetAllVenuesAsync()
+    {
+        IEnumerable<Venue> venues = await _dbContext.Venues.ToListAsync();
+        return venues.OrderBy(x => x.Name);
+    }
+
     public async Task<Venue?> GetVenueByIdAsync(int id)
     {
         IEnumerable<Venue> vs = await _dbContext.Venues.Where(x => x.Id == id).ToListAsync();

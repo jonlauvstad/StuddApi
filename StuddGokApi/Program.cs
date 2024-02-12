@@ -39,6 +39,8 @@ builder.Services.AddScoped<IExamImplementationRepository, ExamImplementationRepo
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<ICourseImpService, CourseImpService>();
 builder.Services.AddScoped<ICourseImpRepository, CourseImpRepository>();
+builder.Services.AddScoped<IVenueRepository, VenueRepository>();
+builder.Services.AddScoped<IVenueService, VenueService>();
 
 builder.Services.AddScoped<UserIdentifier>();
 
