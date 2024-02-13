@@ -22,9 +22,6 @@ public class VenueController : ControllerBase
     {
         IEnumerable<VenueDTO> venues = await _venueService.GetAllVenuesAsync();
         return Ok(venues);
-        //await Task.Delay(10);
-        //IEnumerable<VenueDTO> vs = new List<VenueDTO>();
-        //return Ok(vs);
     }
 
 }
