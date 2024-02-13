@@ -41,14 +41,14 @@ public class LectureBooking
             
             if (newLecture != null)
             {
-                sb.Append($"Vellykket registrering av forelesning.\n" +
-                    $"Id: {newLecture.Id}\n" +
-                    $"Kursgjennomføring: {newLecture.CourseImplementationCode}\n" +
-                    $"Rom: {room}\n" +
-                    $"Start: {newLecture.StartTime}\n" +
-                    $"Slutt: {newLecture.EndTime}\n" +
-                    $"Studenter: {NumStudents}\n" +
-                    $"Kapasitet:{VenueCapacity} \n");
+                sb.Append($"Vellykket registrering av forelesning.<br>" +
+                    $"Id: {newLecture.Id}<br>" +
+                    $"Kursgjennomføring: {newLecture.CourseImplementationCode}<br>" +
+                    $"Rom: {room}<br>" +
+                    $"Start: {newLecture.StartTime}<br>" +
+                    $"Slutt: {newLecture.EndTime}<br>" +
+                    $"Studenter: {NumStudents}<br>" +
+                    $"Kapasitet:{VenueCapacity}<br>");
 
                 if (NumStudents > VenueCapacity)
                 {
@@ -57,14 +57,14 @@ public class LectureBooking
             }
             else
             {
-                sb.Append($"Kunne ikke registrere forelesningen.\n");
+                sb.Append($"Kunne ikke registrere forelesningen.<br>");
                 if (teacherLecture != null)
                 {
-                    sb.Append($"Læreren er opptatt: {teacherLecture.Link}\n");
+                    sb.Append($"Læreren er opptatt: {teacherLecture.Link}<br>");
                 }
                 if (venueEvent != null)
                 {
-                    sb.Append($"Rommet er opptatt: {venueEvent.Link}\n");
+                    sb.Append($"Rommet er opptatt: {venueEvent.Link}<br>");
                 }
             }
             Message = sb.ToString();

@@ -33,8 +33,6 @@ public class LectureService : ILectureService
 
     public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture)
     {
-        //_logger.LogInformation("HEI");
-        //Console.WriteLine("Hei på deg!!");
         string? validated = await ValidateDates(lecture);
         if (validated != null) 
         {
@@ -67,32 +65,6 @@ public class LectureService : ILectureService
         }
 
         
-        // otherwise, add the new LectureDTO, add the LectureVenue and return the 'result' in a LectureBooking-object
-        //Lecture? newLecture = await _lectureRepository.AddLectureAsync(_lectureMapper.MapToModel(lecture));
-        //(Lecture? lecture, LectureVenue? lecVenue) lecLecVen = 
-        //    await _lectureRepository.AddLectureAndVenueAsync(_lectureMapper.MapToModel(lecture),
-        //    venueId: venueId == 0 ? null : venueId);
-        
-        //Venue? venue = null;
-        //LectureVenue? lecVen = lecLecVen.lecVenue;
-
-        //if (venueId != 0)
-        //{
-        //    //LectureVenue? lv = await _venueRepository.AddLectureVenueAsync(
-        //    //new LectureVenue
-        //    //{
-        //    //    LectureId = newLecture!.Id,
-        //    //    VenueId = venueId,
-        //    //});
-
-        //    if (lecVen != null) //lv != null
-        //    {
-        //        venue = await _venueRepository.GetVenueByIdAsync(lecVen.VenueId);
-        //    }
-        //}
-
-        
-        // PÅ NYTT:
         if (venueId == 0)
         {
             Lecture? returnLecture = await _lectureRepository.AddLectureAsync(_lectureMapper.MapToModel(lecture));
@@ -127,10 +99,6 @@ public class LectureService : ILectureService
         Lecture? lecture = await _lectureRepository.GetLectureById(id);
         if (lecture == null) { return null; }
         LectureDTO lecDTO = _lectureMapper.MapToDTO(lecture);
-        //IEnumerable<User> teachers = await _lectureRepository.GetTeachersByCourseImplementationId(lecture.CourseImplementationId);
-        //IEnumerable<string> teacherNames = from t in teachers select $"{t.FirstName} {t.LastName}";
-        //lecDTO.TeacherNames = string.Join(", ", teacherNames);
-        // DE 3 LINJENE OVER I EN EGEN FUNKSJON SOM TAR EN LECTURETDO SOM ARGUMENT
         await AddTeachers(lecDTO);
         return lecDTO; 
     }

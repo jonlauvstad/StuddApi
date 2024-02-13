@@ -29,6 +29,7 @@ public class LoginController : ControllerBase
     [HttpGet(Name = "Testing")]
     public async Task<ActionResult<string>> Testing()
     {
+        await Task.Delay(10);
         string role = $"{HttpContext.Items["Role"]}";
         return Ok(HttpContext.Items["UserId"] + " " + HttpContext.Items["GokstadEmail"] + " " + HttpContext.Items["Role"]);
     }
