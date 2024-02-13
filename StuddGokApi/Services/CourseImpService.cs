@@ -18,9 +18,10 @@ public class CourseImpService : ICourseImpService
         _cimpMapper = cimpMapper;
     }
 
-    public async Task<IEnumerable<CourseImplementationDTO>> GetCourseImpsAsync(DateTime? startDate, DateTime? endDate)
+    public async Task<IEnumerable<CourseImplementationDTO>> GetCourseImpsAsync(DateTime? startDate, DateTime? endDate, 
+        (string role, int userId)? user = null)
     {
-        IEnumerable<CourseImplementation> cimps = await _cimpRepo.GetCourseImpsAsync(startDate, endDate);
+        IEnumerable<CourseImplementation> cimps = await _cimpRepo.GetCourseImpsAsync(startDate, endDate, user:user);
         return from cimp in cimps select _cimpMapper.MapToDTO(cimp);
     }
 

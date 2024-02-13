@@ -46,18 +46,18 @@ public class CourseImplementationMapper : IMapper<CourseImplementation, CourseIm
         };
     }
 
-    public int Id { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public int CourseId { get; set; }
-    public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public string Semester { get => StartDate.Month < 0 ? "V" : "H"; }
-    public string EndSemester { get => EndDate.Month < 0 ? "V" : "H"; }
-    public int Year { get => StartDate.Year; }
-    public int EndYear { get => EndDate.Year; }
+    //public int Id { get; set; }
+    //public string Code { get; set; } = string.Empty;
+    //public string Name { get; set; } = string.Empty;
+    //public int CourseId { get; set; }
+    //public DateTime StartDate { get; set; }
+    //public DateTime EndDate { get; set; }
+    //public string Semester { get => StartDate.Month < 0 ? "V" : "H"; }
+    //public string EndSemester { get => EndDate.Month < 0 ? "V" : "H"; }
+    //public int Year { get => StartDate.Year; }
+    //public int EndYear { get => EndDate.Year; }
 
-    // Added
-    public string CourseLink { get => $"/Course/{CourseId}"; }
-    public string Link { get => $"/CourseImplementation/{Id}"; }
+    //// Added
+    //public string CourseLink { get => $"/Course/{CourseId}"; }
+    //public string Link { get => $"/CourseImplementation/{Id}"; }
 }

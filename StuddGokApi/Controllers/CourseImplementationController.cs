@@ -20,9 +20,12 @@ public class CourseImplementationController : ControllerBase
     [Authorize(Roles = "admin, teacher")]
     [HttpGet(Name = "GetCourseImplementations")]
     public async Task<ActionResult<IEnumerable<CourseImplementationDTO>>> 
-        GetCourseImps(DateTime? startDate=null, DateTime? endDate=null)
+        GetCourseImps(DateTime? startDate=null, DateTime? endDate=null, string? userRole=null)
     {
-        IEnumerable<CourseImplementationDTO> ciDTOs = await _cimpService.GetCourseImpsAsync(startDate, endDate);
+        (string role, int userId)? user = userRole == null ? null : 
+            (Convert.ToString(HttpContext.Items["Role"]), Convert.ToInt32(HttpContext.Items["UserId"])); 
+
+        IEnumerable<CourseImplementationDTO> ciDTOs = await _cimpService.GetCourseImpsAsync(startDate, endDate, user:user);
         return Ok(ciDTOs);
     }
 }
