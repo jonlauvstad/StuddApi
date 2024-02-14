@@ -120,7 +120,7 @@ public class LectureService : ILectureService
         if(lecture.StartTime > lecture.EndTime) { return "Starttidspunkt må være etter slutttidspunkt"; }
 
         // fra > nå
-        if(lecture.StartTime <= DateTime.Now) { return "Starttisapunktet må være i fremtiden"; }
+        if(lecture.StartTime <= DateTime.Now) { return "Starttidspunktet må være i fremtiden"; }
 
         // fra > kursImpStart
         CourseImplementationDTO? ciDTO = await _courseImpService.GetCourseImpByIdAsync(lecture.CourseImplementationId);
