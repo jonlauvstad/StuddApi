@@ -18,6 +18,7 @@ public class LectureBooking
     public DateTime EndTime { get; }
     public bool Room {  get; }
     public string RoomString { get; } 
+    public string LectureLink { get; }
 
     public LectureBooking(LectureDTO? newLecture, EventDTO? venueEvent, LectureDTO? teacherLecture, 
         Venue? venue, CourseImplementationDTO? courseImpDTO, string? failMsg=null) 
@@ -30,8 +31,9 @@ public class LectureBooking
         VenueName = venue == null ? string.Empty : venue.Name;
         Room = venue == null ? false : true;
         RoomString = venue == null ? "Ikke booket" : venue.Name;
-    
-        if(newLecture != null)
+        LectureLink = newLecture == null ? "" : newLecture.Link;
+
+        if (newLecture != null)
         {
             StartTime = newLecture.StartTime;
             EndTime = newLecture.EndTime;
@@ -60,7 +62,7 @@ public class LectureBooking
 
                 if (Room && NumStudents > VenueCapacity)
                 {
-                    sb.Append($"<br style='color: orangered;'>Antallet studenter ({NumStudents}) overstiger rommets kapasitet ({VenueCapacity})!");
+                    sb.Append($"<label style='color: orangered;'>Antallet studenter ({NumStudents}) overstiger rommets kapasitet ({VenueCapacity})!</label>");
                 }
             }
             else

@@ -91,7 +91,9 @@ public class LectureService : ILectureService
     {
         Lecture? lecture = await _lectureRepository.DeleteLectureByIdAsync(id);
         if (lecture == null) { return null; }
-        return _lectureMapper.MapToDTO(lecture);
+        LectureDTO lecDTO = _lectureMapper.MapToDTO(lecture);
+        await AddTeachers(lecDTO);
+        return lecDTO;
     }
 
     public async Task<LectureDTO?> GetLectureByIdAsync(int id)
