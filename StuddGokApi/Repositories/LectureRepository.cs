@@ -119,7 +119,19 @@ public class LectureRepository : ILectureRepository
                     LectureVenue? lecVen =
                     await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.VenueId == venueId && x.LectureId == lecture.Id) ?? null;
                     if (lecVen == null) 
-                    { 
+                    {
+                        
+                        if (venueId == 0)
+                        {
+                            // SLETTE lectureVenue
+                            LectureVenue? lv = await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.Id == lecture.Id) ?? null;
+                            if (lv != null)
+                            {
+                                int numDeleted = await _dbContext.Lectures.Where(x => x.Id == lv.Id).ExecuteDeleteAsync();
+                                if (numDeleted == 0) { throw new Exception(); }
+                            }
+                        }
+
                         lecVen = new LectureVenue { Id = venueId, LectureId=lecture.Id };
                         EntityEntry ev = await _dbContext.LectureVenues.AddAsync(lecVen);
                         await _dbContext.SaveChangesAsync();
