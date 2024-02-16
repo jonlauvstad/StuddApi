@@ -104,6 +104,73 @@ public class LectureRepository : ILectureRepository
         return (l, lec_ven);        
     }
 
+    public async Task<Lecture?> UpdateLectureAndVenueAsync(Lecture lecture, int venueId)
+    {
+        Lecture? l = null;
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    LectureVenue? lecVen =
+                    await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.VenueId == venueId && x.LectureId == lecture.Id) ?? null;
+                    if (lecVen == null) 
+                    { 
+                        lecVen = new LectureVenue { Id = venueId, LectureId=lecture.Id };
+                        EntityEntry ev = await _dbContext.LectureVenues.AddAsync(lecVen);
+                        await _dbContext.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        lecVen.VenueId = venueId;
+                        lecVen.LectureId = lecture.Id;
+                        await _dbContext.SaveChangesAsync();
+                    }
+                    
+
+                    Lecture? lec = await _dbContext.Lectures.FirstOrDefaultAsync(x => x.Id == lecture.Id) ?? null;
+                    if (lec == null) { throw new Exception(); }
+
+                    lec.CourseImplementationId = lecture.CourseImplementationId;
+                    lec.Theme = lecture.Theme;
+                    lec.Description = lecture.Description;
+                    lec.StartTime = lecture.StartTime;
+                    lec.EndTime = lecture.EndTime;
+                    await _dbContext.SaveChangesAsync();
+                    l = lec;
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+            }
+        });
+        return l;
+    }
+
+    public async Task<Lecture?> UpdateLectureAsync(Lecture lecture)
+    {
+        // The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null;
+        // otherwise, it evaluates the right-hand operand and returns its result.
+        Lecture? lec = await _dbContext.Lectures.FirstOrDefaultAsync(x => x.Id == lecture.Id) ?? null;
+        if (lec == null) { return null; }
+
+        lec.CourseImplementationId = lecture.CourseImplementationId;
+        lec.Theme = lecture.Theme;
+        lec.Description = lecture.Description;
+        lec.StartTime = lecture.StartTime;
+        lec.EndTime = lecture.EndTime;
+
+        await _dbContext.SaveChangesAsync();
+        return lec;
+    }
+
     public async Task<Lecture?> DeleteLectureByIdAsync(int id)
     {
         Lecture? lecture = await GetLectureById(id);

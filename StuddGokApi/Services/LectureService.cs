@@ -31,6 +31,40 @@ public class LectureService : ILectureService
         _logger = logger;
     }
 
+    public async Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture)
+    {
+        string? validated = await ValidateDates(lecture);
+        if (validated != null) { return null; }
+
+        // Check if venue is available - that is if venues selected...
+        int venueId = 0;
+        if (lecture.VenueIds.Any())
+        {
+            venueId = lecture.VenueIds.FirstOrDefault();
+            Event? e = await _venueRepository.CheckVenueAsync(venueId, lecture.StartTime, lecture.EndTime);
+            if (e != null) 
+            { 
+                if(e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") { return null; } 
+            }
+        }
+
+        // Check wheteher teacher is available
+        Lecture? teacherLecture = await _lectureRepository.CheckTeacher(lecture.CourseImplementationId, lecture.StartTime, lecture.EndTime);
+        if (teacherLecture != null)
+        {
+            if(teacherLecture.Id != lecture.Id) { return null; }
+        }
+
+        // Update lecture without venue
+        // Hva med komb ikke oppr, men venue nå og omvendt!
+
+        // Update with venue
+        // Problst som over med/uten nå tidl
+
+        // Denne retur'n ikke riktig!
+        return null;
+    }
+
     public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture)
     {
         string? validated = await ValidateDates(lecture);
