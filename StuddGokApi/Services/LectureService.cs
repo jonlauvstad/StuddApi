@@ -33,6 +33,8 @@ public class LectureService : ILectureService
 
     public async Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture)
     {
+        // MANGLER SJEKK PÅ TEACHER ER 'EIER'
+
         string? validated = await ValidateDates(lecture);
         if (validated != null) { return null; }
 
@@ -55,18 +57,16 @@ public class LectureService : ILectureService
             if(teacherLecture.Id != lecture.Id) { return null; }
         }
 
-        // Update lecture without venue
-        // Hva med komb ikke oppr, men venue nå og omvendt!
-
-        // Update with venue
-        // Problst som over med/uten nå tidl
-
-        // Denne retur'n ikke riktig!
-        return null;
+        // Update lecture (and venue - that is lLectureVenue)
+        Lecture? returnLecture = await _lectureRepository.UpdateLectureAndVenueAsync(_lectureMapper.MapToModel(lecture), venueId);
+        if (returnLecture == null) return null;
+        return _lectureMapper.MapToDTO(returnLecture);
     }
 
     public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture)
     {
+        // MANGLER SJEKK PÅ TEACHER ER 'EIER'
+
         string? validated = await ValidateDates(lecture);
         if (validated != null) 
         {
@@ -123,6 +123,8 @@ public class LectureService : ILectureService
 
     public async Task<LectureDTO?> DeleteLectureByIdAsync(int id)
     {
+        // MANGLER SJEKK PÅ TEACHER ER 'EIER'
+
         Lecture? lecture = await _lectureRepository.DeleteLectureByIdAsync(id);
         if (lecture == null) { return null; }
         LectureDTO lecDTO = _lectureMapper.MapToDTO(lecture);

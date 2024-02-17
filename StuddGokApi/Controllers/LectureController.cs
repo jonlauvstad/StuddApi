@@ -45,4 +45,15 @@ public class LectureController : ControllerBase
         if(lecDTO == null) { return NotFound($"Unable to delete lecture with id {id}"); }
         return Ok(lecDTO);
     }
+
+    [Authorize(Roles = "admin, teacher")]
+    [HttpPut(Name = "UpdateLecture")]
+    public async Task<ActionResult<LectureDTO>> UpdateLecture([FromBody] LectureDTO lectureDTO)
+    {
+        LectureDTO? lecDTO = await _lectureService.UpdateLectureAsync(lectureDTO);
+        if (lecDTO == null) { return NotFound($"Unable to update lecture with id {lectureDTO.Id}"); }
+        return Ok(lecDTO);
+    }
+
+
 }
