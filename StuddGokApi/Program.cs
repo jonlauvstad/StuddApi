@@ -12,6 +12,8 @@ using StuddGokApi.Services.Interfaces;
 using StuddGokApi.Services;
 using StuddGokApi.Middlewear;
 using StuddGokApi.Models;
+using StudentResource.Services.Interfaces;
+using StudentResource.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +45,9 @@ builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<IVenueService, VenueService>();
 
 builder.Services.AddScoped<UserIdentifier>();
+
+builder.Services.AddScoped<IStudentResourceService, StudentResource.Services.StudentResourceService>(); 
+
 
 builder.Services.AddDbContext<StuddGokDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),

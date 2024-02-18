@@ -47,6 +47,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "7.0.12",
           "Microsoft.NET.Test.Sdk": "17.9.0",
           "Pomelo.EntityFrameworkCore.MySql": "7.0.0",
+          "StudentResource": "1.0.0",
           "Swashbuckle.AspNetCore": "6.5.0",
           "Testcontainers.MySql": "3.7.0",
           "Microsoft.AspNetCore.Antiforgery": "7.0.0.0",
@@ -2045,6 +2046,14 @@
         },
         "compile": {
           "lib/netstandard2.1/Testcontainers.MySql.dll": {}
+        }
+      },
+      "StudentResource/1.0.0": {
+        "runtime": {
+          "StudentResource.dll": {}
+        },
+        "compile": {
+          "StudentResource.dll": {}
         }
       },
       "Microsoft.AspNetCore.Antiforgery/7.0.0.0": {
@@ -4915,6 +4924,11 @@
       "sha512": "sha512-Zs1PJZkhwo5llN/ZfrF4W+UuBCZ/r8nQnfmGQyhPJMrpenrxnLzt9+ozAZX+udulE/7MeQemyMpNdq7jeDuhHg==",
       "path": "testcontainers.mysql/3.7.0",
       "hashPath": "testcontainers.mysql.3.7.0.nupkg.sha512"
+    },
+    "StudentResource/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "Microsoft.AspNetCore.Antiforgery/7.0.0.0": {
       "type": "referenceassembly",

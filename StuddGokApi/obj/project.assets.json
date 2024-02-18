@@ -2929,6 +2929,16 @@
             "related": ".xml"
           }
         }
+      },
+      "StudentResource/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v7.0",
+        "compile": {
+          "bin/placeholder/StudentResource.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/StudentResource.dll": {}
+        }
       }
     }
   },
@@ -8671,6 +8681,11 @@
         "testcontainers.mysql.3.7.0.nupkg.sha512",
         "testcontainers.mysql.nuspec"
       ]
+    },
+    "StudentResource/1.0.0": {
+      "type": "project",
+      "path": "../ClassLibraries/StudentResource/StudentResource.csproj",
+      "msbuildProject": "../ClassLibraries/StudentResource/StudentResource.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -8687,6 +8702,7 @@
       "Microsoft.EntityFrameworkCore.Tools >= 7.0.12",
       "Microsoft.NET.Test.Sdk >= 17.9.0",
       "Pomelo.EntityFrameworkCore.MySql >= 7.0.0",
+      "StudentResource >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.5.0",
       "Testcontainers.MySql >= 3.7.0"
     ]
@@ -8722,7 +8738,11 @@
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\ClassLibraries\\StudentResource\\StudentResource.csproj": {
+              "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\ClassLibraries\\StudentResource\\StudentResource.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

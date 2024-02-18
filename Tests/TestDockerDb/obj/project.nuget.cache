@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "6/dZ8MhlpxLJbnmheUm5d6WmKqud1ixvpoXP8ZvvS9l7ik5aSGlTkQtYsptXMXt7eda7ejJ+080xhbY//gqTqg==",
+  "dgSpecHash": "a0Z2B6qv25Rmx+oHvLGd3FreSHJrRIaLaiAGuCURfbTkBBUUy2GXwBy0hrcz8o98Mcqf8hzu3PazPpHQtG+0Lg==",
   "success": true,
   "projectFilePath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\Tests\\TestDockerDb\\TestDockerDb.csproj",
   "expectedPackageFiles": [
