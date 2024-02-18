@@ -30,7 +30,7 @@ public class LectureMapper : IMapper<Lecture, LectureDTO>
 
             //LectureVenues = model.LectureVenues,
             //Attendances = model.Attendances,
-            VenueIds = from ven in venues select ven.Id,
+            VenueIds =  from ven in venues select ven.Id,
             VenueNamesList = from ven in venues select ven.Name,
 
             CourseImplementationName = model.CourseImplementation!.Name,

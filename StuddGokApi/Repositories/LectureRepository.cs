@@ -14,10 +14,12 @@ namespace StuddGokApi.Repositories;
 public class LectureRepository : ILectureRepository
 {
     private readonly StuddGokDbContext _dbContext;
+    private readonly ILogger<LectureRepository> _logger;
 
-    public LectureRepository(StuddGokDbContext dbContext)
+    public LectureRepository(StuddGokDbContext dbContext, ILogger<LectureRepository> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
     public async Task<Lecture?> GetLectureById(int id)
     {
@@ -97,7 +99,6 @@ public class LectureRepository : ILectureRepository
                 catch
                 {
                     transaction.Rollback();
-                    //throw;
                 }
             }
         });
@@ -116,14 +117,17 @@ public class LectureRepository : ILectureRepository
             {
                 try
                 {
+                    //LectureVenue? lecVen =                          // finding existing lecture's venue
+                    //await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.VenueId == venueId && x.LectureId == lecture.Id) ?? null;
                     LectureVenue? lecVen =                          // finding existing lecture's venue
-                    await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.VenueId == venueId && x.LectureId == lecture.Id) ?? null;
-                    
+                    await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.LectureId == lecture.Id);
+
+
                     if (lecVen == null)                             // 1 meaning the original had no venue
                     {
                         if (venueId != 0)                           // 1-A but the new one has a venue
                         {
-                            lecVen = new LectureVenue { Id = venueId, LectureId = lecture.Id };
+                            lecVen = new LectureVenue { VenueId = venueId, LectureId = lecture.Id };
                             EntityEntry ev = await _dbContext.LectureVenues.AddAsync(lecVen);
                             await _dbContext.SaveChangesAsync();
                         }

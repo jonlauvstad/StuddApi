@@ -12,10 +12,12 @@ namespace StuddGokApi.Controllers;
 public class LectureController : ControllerBase
 {
     private readonly ILectureService _lectureService;
+    private readonly ILogger<LectureController> _logger;
 
-    public LectureController(ILectureService lectureService)
+    public LectureController(ILectureService lectureService, ILogger<LectureController> logger)
     {
         _lectureService = lectureService;
+        _logger = logger;
     }
 
     [Authorize]
@@ -47,11 +49,15 @@ public class LectureController : ControllerBase
     }
 
     [Authorize(Roles = "admin, teacher")]
-    [HttpPut(Name = "UpdateLecture")]
-    public async Task<ActionResult<LectureDTO>> UpdateLecture([FromBody] LectureDTO lectureDTO)
+    [HttpPut("{id}", Name = "UpdateLecture")]
+    public async Task<ActionResult<LectureDTO>> UpdateLecture([FromRoute] int id, [FromBody] LectureDTO lectureDTO)
     {
         LectureDTO? lecDTO = await _lectureService.UpdateLectureAsync(lectureDTO);
-        if (lecDTO == null) { return NotFound($"Unable to update lecture with id {lectureDTO.Id}"); }
+        if (lecDTO == null) 
+        {
+            _logger.LogDebug("Servic'n returnerer null.");
+            return NotFound($"Unable to update lecture with id {id}"); 
+        }
         return Ok(lecDTO);
     }
 
