@@ -9,7 +9,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{65E297C7
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "Tests\UnitTests\UnitTests.csproj", "{95CF6EE1-BC8F-43A9-A427-BD0D12BBFF71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestDockerDb", "Tests\TestDockerDb\TestDockerDb.csproj", "{1DAAA24C-6B86-4678-9C08-BAEB0D6DD72A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestDockerDb", "Tests\TestDockerDb\TestDockerDb.csproj", "{1DAAA24C-6B86-4678-9C08-BAEB0D6DD72A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{944A09AA-C7FE-4B8D-9136-F59D1E526696}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
