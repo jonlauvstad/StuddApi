@@ -141,7 +141,8 @@ public class LectureRepository : ILectureRepository
                         if (venueId == 0)                           // 2-A but the new one has no venue
                         {
                             // DELETE lectureVenue
-                            int numDeleted = await _dbContext.Lectures.Where(x => x.Id == lecVen.Id).ExecuteDeleteAsync();
+                            _logger.LogDebug("SKAL DELETE");
+                            int numDeleted = await _dbContext.LectureVenues.Where(x => x.Id == lecVen.Id).ExecuteDeleteAsync();
                             await _dbContext.SaveChangesAsync();     
                             if (numDeleted == 0) { throw new Exception(); }
                         }
