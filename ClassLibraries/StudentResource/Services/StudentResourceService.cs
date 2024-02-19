@@ -10,7 +10,8 @@ namespace StudentResource.Services
 {
     public class StudentResourceService : IStudentResourceService
     {
-        private const string Backend22_24 = "https://gokstadakademietas.sharepoint.com/:u:/r/sites/1.Backend-utviklingH22-V24/SitePages/Home.aspx?csf=1&web=1&e=maHAcB";
+        private const string Backend22_24 = "https://gokstadakademietas.sharepoint.com/:f:/s/1.Backend-utviklingH22-V24/EuJdCT9flYROu9ohS-rEpxYB6pcmwt0H6ZNkWhDgtKucuw?e=at716I";
+        private const string Backend22_24_video = "https://gokstadakademietas.sharepoint.com/:f:/s/1.Backend-utviklingH22-V24/EuJdCT9flYROu9ohS-rEpxYB6pcmwt0H6ZNkWhDgtKucuw?e=at716I";
 
         public IEnumerable<StudentResourceModel> GetResourcesForCourse(int courseId)
         {
@@ -28,9 +29,9 @@ namespace StudentResource.Services
                 new StudentResourceModel
                 {
                     Id = 2,
-                    Title = "Frontend",
-                    Description = "Deep dive into advanced topics.",
-                    URL = Backend22_24,
+                    Title = "Backend Programmering",
+                    Description = "Ressurser for Backend 22-24. - Video",
+                    URL = Backend22_24_video,
                     CourseId = courseId // samme kurs
                 }
             };
