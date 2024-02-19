@@ -7,7 +7,7 @@ namespace StuddGokApi.Services.Interfaces;
 public interface ILectureService
 {
     Task<LectureDTO?> GetLectureByIdAsync(int id);
-    Task<LectureBooking> AddLectureAsync(LectureDTO lecture);
-    Task<LectureDTO?> DeleteLectureByIdAsync(int id);
-    Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture);
+    Task<LectureBooking> AddLectureAsync(LectureDTO lecture, int userId, string role);
+    Task<LectureDTO?> DeleteLectureByIdAsync(int id, int userId, string role);
+    Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture, int userId, string role);
 }

@@ -5,6 +5,7 @@ using StuddGokApi.Mappers;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using System.Data;
 
 namespace StuddGokApi.Services;
 
@@ -31,9 +32,10 @@ public class LectureService : ILectureService
         _logger = logger;
     }
 
-    public async Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture)
+    public async Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture, int userId, string role)
     {
-        // MANGLER SJEKK PÅ TEACHER ER 'EIER'
+        // SJEKK PÅ TEACHER ER 'EIER'
+        if (! await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId:lecture.CourseImplementationId)) return null;
 
         string? validated = await ValidateDates(lecture);
         if (validated != null) { return null; }
@@ -63,9 +65,13 @@ public class LectureService : ILectureService
         return _lectureMapper.MapToDTO(returnLecture);
     }
 
-    public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture)
+    public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture, int userId, string role)
     {
-        // MANGLER SJEKK PÅ TEACHER ER 'EIER'
+        // SJEKK PÅ TEACHER ER 'EIER'
+        if (!await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId: lecture.CourseImplementationId))
+        {
+            return new LectureBooking(null, null, null, null, null, failMsg: $"Not authorized to add lecture to course with id {lecture.CourseImplementationId}");
+        }
 
         string? validated = await ValidateDates(lecture);
         if (validated != null) 
@@ -121,9 +127,10 @@ public class LectureService : ILectureService
                 ciDTO);
     }
 
-    public async Task<LectureDTO?> DeleteLectureByIdAsync(int id)
+    public async Task<LectureDTO?> DeleteLectureByIdAsync(int id, int userId, string role)
     {
-        // MANGLER SJEKK PÅ TEACHER ER 'EIER'
+        // SJEKK PÅ TEACHER ER 'EIER'
+        if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
 
         Lecture? lecture = await _lectureRepository.DeleteLectureByIdAsync(id);
         if (lecture == null) { return null; }
@@ -140,6 +147,8 @@ public class LectureService : ILectureService
         await AddTeachers(lecDTO);
         return lecDTO; 
     }
+
+    
 
     private async Task<LectureDTO> AddTeachers(LectureDTO lecDTO)
     {

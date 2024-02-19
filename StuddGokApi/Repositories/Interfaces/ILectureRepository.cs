@@ -12,4 +12,5 @@ public interface ILectureRepository
     Task<Lecture?> DeleteLectureByIdAsync(int id);
     Task<Lecture?> UpdateLectureAsync(Lecture lecture);
     Task<Lecture?> UpdateLectureAndVenueAsync(Lecture lecture, int venueId);
+    Task<bool> IsOwner(int userId, string role, int lectureId, int? courseImplementationId = null);
 }

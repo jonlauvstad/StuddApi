@@ -27,7 +27,7 @@ public class LectureRepository : ILectureRepository
 
         Lecture? lecture = lectures.FirstOrDefault();
         if (lecture == null ) { return null; }
-        lecture.LectureVenues = await _dbContext.LectureVenues.ToListAsync();
+        lecture.LectureVenues = await _dbContext.LectureVenues.Where(x => x.LectureId == id).ToListAsync();
 
         return lecture;
     }
@@ -102,13 +102,15 @@ public class LectureRepository : ILectureRepository
                 }
             }
         });
+        
         return (l, lec_ven);        
     }
 
     public async Task<Lecture?> UpdateLectureAndVenueAsync(Lecture lecture, int venueId)    // venueId is existing lecture's venue (or 0)
     {                                                                                       // it has been extracted from the venueDTO in Service
         Lecture? l = null;                                                                  // necessary to to this because Lecture returned from
-                                                                                            // mapper has only empty hash set of lectureVenues
+        LectureVenue? lecVen = null;                                                        // mapper has only empty hash set of lectureVenues
+
         var strategy = _dbContext.Database.CreateExecutionStrategy();
 
         await strategy.ExecuteAsync(async () =>
@@ -119,7 +121,7 @@ public class LectureRepository : ILectureRepository
                 {
                     //LectureVenue? lecVen =                          // finding existing lecture's venue
                     //await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.VenueId == venueId && x.LectureId == lecture.Id) ?? null;
-                    LectureVenue? lecVen =                          // finding existing lecture's venue
+                    lecVen =                          // finding existing lecture's venue
                     await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.LectureId == lecture.Id);
 
 
@@ -170,7 +172,12 @@ public class LectureRepository : ILectureRepository
                 }
             }
         });
-        return l;
+        if (l != null && venueId !=0)
+        {
+            lecVen.Venue = await _dbContext.Venues.FirstOrDefaultAsync(x => x.Id == venueId);
+            l.LectureVenues.Add(lecVen);        
+        }
+            return l;
     }
 
     public async Task<Lecture?> UpdateLectureAsync(Lecture lecture)
@@ -202,6 +209,46 @@ public class LectureRepository : ILectureRepository
         {
             return null;
         }
+
+        //if (lecture != null) lecture.LectureVenues = await _dbContext.LectureVenues.Where(x => x.LectureId == id).ToListAsync();
+      
         return lecture;
     }
+
+    public async Task<bool> IsOwner(int userId, string role, int lectureId, int? courseImplementationId=null)
+    {
+        if (role == "admin") return true;
+
+        int ciId;
+        if (courseImplementationId != null) { ciId  = courseImplementationId.Value; }
+        else
+        {
+            Lecture? l = await GetLectureById(lectureId);
+            if (l == null) { return false; }
+            ciId = l.CourseImplementationId;
+        }
+        if (role == "teacher")
+        {
+            IEnumerable<int> courseImpIds = await TeacherCourseImps(userId);
+            if (courseImpIds.Contains(ciId)) return true;
+        }
+        
+        return false;
+    }
+
+    private async Task<IEnumerable<int>> TeacherCourseImps(int userId)
+    {
+        IEnumerable<TeacherProgram> teachPrgms = await _dbContext.TeacherPrograms.Where(x => x.UserId == userId).ToListAsync();
+        IEnumerable<int> progImpIds = from item in teachPrgms select item.ProgramImplementationId;
+        IEnumerable<ProgramCourse> progCourses = await _dbContext.ProgramCourses
+                                                    .Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
+
+        IEnumerable<TeacherCourse> teachCourses = await _dbContext.TeacherCourses.Where(x => x.UserId == userId).ToListAsync();
+        IEnumerable<int> courseImpIdsT = from item in teachCourses select item.CourseImplementationId;
+
+        IEnumerable<int> courseImpIdsP = from item in progCourses select item.CourseImplementationId;
+        courseImpIdsT.ToList().AddRange(courseImpIdsP);
+        return courseImpIdsT;
+    }
+    
 }
