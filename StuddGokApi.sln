@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Git", "Git", "{944A09AA-C7F
 		.gitignore = .gitignore
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentResource", "ClassLibraries\StudentResource\StudentResource.csproj", "{3D83D3E2-19D4-439B-8139-3FFC0C45B2E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StudentResource", "ClassLibraries\StudentResource\StudentResource.csproj", "{3D83D3E2-19D4-439B-8139-3FFC0C45B2E3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
