@@ -10,26 +10,28 @@ namespace StudentResource.Services
 {
     public class StudentResourceService : IStudentResourceService
     {
+        private const string Backend22_24 = "https://gokstadakademietas.sharepoint.com/:u:/r/sites/1.Backend-utviklingH22-V24/SitePages/Home.aspx?csf=1&web=1&e=maHAcB";
+
         public IEnumerable<StudentResourceModel> GetResourcesForCourse(int courseId)
         {
-            // Mock data for demonstration purposes
+
             var mockResources = new List<StudentResourceModel>
             {
                 new StudentResourceModel
                 {
                     Id = 1,
-                    Title = "Introduction to Course",
-                    Description = "A brief introduction to the course.",
-                    URL = "http://example.com/intro",
-                    CourseId = courseId // Assuming this is the course you're interested in
+                    Title = "Backend Programmering",
+                    Description = "Ressurser for Backend 22-24",
+                    URL = Backend22_24,
+                    CourseId = courseId // kurset settes i flask
                 },
                 new StudentResourceModel
                 {
                     Id = 2,
-                    Title = "Advanced Topics",
+                    Title = "Frontend",
                     Description = "Deep dive into advanced topics.",
-                    URL = "http://example.com/advanced",
-                    CourseId = courseId // Assuming this is the same course
+                    URL = Backend22_24,
+                    CourseId = courseId // samme kurs
                 }
             };
             return mockResources;

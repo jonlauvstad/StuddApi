@@ -4,7 +4,7 @@ using StudentResource.Services.Interfaces;
 namespace StuddGokApi.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/v1/[controller]")]
     public class StudentResourcesController : ControllerBase
     {
         private readonly IStudentResourceService _studentResourceService;
