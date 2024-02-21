@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\Tests\\UnitTests\\UnitTests.csproj": {}
+    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\Tests\\UnitTests\\UnitTests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\StuddGokApi\\StuddGokApi.csproj": {
+    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\StuddGokApi\\StuddGokApi.csproj",
+        "projectUniqueName": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj",
         "projectName": "StuddGokApi",
-        "projectPath": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\StuddGokApi\\StuddGokApi.csproj",
-        "packagesPath": "C:\\Users\\Eier\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\StuddGokApi\\obj\\",
+        "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj",
+        "packagesPath": "C:\\Users\\47901\\.nuget\\packages\\",
+        "outputPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Eier\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\47901\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -125,24 +124,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\Tests\\UnitTests\\UnitTests.csproj": {
+    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\Tests\\UnitTests\\UnitTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\Tests\\UnitTests\\UnitTests.csproj",
+        "projectUniqueName": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\Tests\\UnitTests\\UnitTests.csproj",
         "projectName": "UnitTests",
-        "projectPath": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\Tests\\UnitTests\\UnitTests.csproj",
-        "packagesPath": "C:\\Users\\Eier\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\Tests\\UnitTests\\obj\\",
+        "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\Tests\\UnitTests\\UnitTests.csproj",
+        "packagesPath": "C:\\Users\\47901\\.nuget\\packages\\",
+        "outputPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\Tests\\UnitTests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Eier\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\47901\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -151,15 +150,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net7.0": {
             "targetAlias": "net7.0",
             "projectReferences": {
-              "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\StuddGokApi\\StuddGokApi.csproj": {
-                "projectPath": "C:\\Users\\Eier\\source\\repos\\StuddGokApi\\StuddGokApi\\StuddGokApi.csproj"
+              "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj": {
+                "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj"
               }
             }
           }
@@ -219,7 +217,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.403\\RuntimeIdentifierGraph.json"
         }
       }
     }
