@@ -14,10 +14,12 @@ namespace StuddGokApi.Repositories;
 public class LectureRepository : ILectureRepository
 {
     private readonly StuddGokDbContext _dbContext;
+    private readonly ILogger<LectureRepository> _logger;
 
-    public LectureRepository(StuddGokDbContext dbContext)
+    public LectureRepository(StuddGokDbContext dbContext, ILogger<LectureRepository> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
     public async Task<Lecture?> GetLectureById(int id)
     {
@@ -25,7 +27,7 @@ public class LectureRepository : ILectureRepository
 
         Lecture? lecture = lectures.FirstOrDefault();
         if (lecture == null ) { return null; }
-        lecture.LectureVenues = await _dbContext.LectureVenues.ToListAsync();
+        lecture.LectureVenues = await _dbContext.LectureVenues.Where(x => x.LectureId == id).ToListAsync();
 
         return lecture;
     }
@@ -97,11 +99,102 @@ public class LectureRepository : ILectureRepository
                 catch
                 {
                     transaction.Rollback();
-                    //throw;
                 }
             }
         });
+        
         return (l, lec_ven);        
+    }
+
+    public async Task<Lecture?> UpdateLectureAndVenueAsync(Lecture lecture, int venueId)    // venueId is existing lecture's venue (or 0)
+    {                                                                                       // it has been extracted from the venueDTO in Service
+        Lecture? l = null;                                                                  // necessary to to this because Lecture returned from
+        LectureVenue? lecVen = null;                                                        // mapper has only empty hash set of lectureVenues
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    //LectureVenue? lecVen =                          // finding existing lecture's venue
+                    //await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.VenueId == venueId && x.LectureId == lecture.Id) ?? null;
+                    lecVen =                          // finding existing lecture's venue
+                    await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.LectureId == lecture.Id);
+
+
+                    if (lecVen == null)                             // 1 meaning the original had no venue
+                    {
+                        if (venueId != 0)                           // 1-A but the new one has a venue
+                        {
+                            lecVen = new LectureVenue { VenueId = venueId, LectureId = lecture.Id };
+                            EntityEntry ev = await _dbContext.LectureVenues.AddAsync(lecVen);
+                            await _dbContext.SaveChangesAsync();
+                        }
+                                                                    // 1-B in the case that venueId==null meaning the new lecture also has
+                                                                    // no venue,nothing has to be done
+                    }
+                    else                                            // 2 the old lecture has a venue
+                    {
+                        if (venueId == 0)                           // 2-A but the new one has no venue
+                        {
+                            // DELETE lectureVenue
+                            int numDeleted = await _dbContext.LectureVenues.Where(x => x.Id == lecVen.Id).ExecuteDeleteAsync();
+                            await _dbContext.SaveChangesAsync();     
+                            if (numDeleted == 0) { throw new Exception(); }
+                        }
+                        else                                        // 2-B both old and new have venue
+                        {
+                            lecVen.VenueId = venueId;
+                            lecVen.LectureId = lecture.Id;
+                            await _dbContext.SaveChangesAsync();
+                        }
+                    }
+
+                    Lecture? lec = await _dbContext.Lectures.FirstOrDefaultAsync(x => x.Id == lecture.Id) ?? null;
+                    if (lec == null) { throw new Exception(); }
+
+                    lec.CourseImplementationId = lecture.CourseImplementationId;
+                    lec.Theme = lecture.Theme;
+                    lec.Description = lecture.Description;
+                    lec.StartTime = lecture.StartTime;
+                    lec.EndTime = lecture.EndTime;
+                    await _dbContext.SaveChangesAsync();
+                    l = lec;
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+            }
+        });
+        if (l != null && venueId !=0)
+        {
+            lecVen.Venue = await _dbContext.Venues.FirstOrDefaultAsync(x => x.Id == venueId);
+            l.LectureVenues.Add(lecVen);        
+        }
+            return l;
+    }
+
+    public async Task<Lecture?> UpdateLectureAsync(Lecture lecture)
+    {
+        // The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null;
+        // otherwise, it evaluates the right-hand operand and returns its result.
+        Lecture? lec = await _dbContext.Lectures.FirstOrDefaultAsync(x => x.Id == lecture.Id) ?? null;
+        if (lec == null) { return null; }
+
+        lec.CourseImplementationId = lecture.CourseImplementationId;
+        lec.Theme = lecture.Theme;
+        lec.Description = lecture.Description;
+        lec.StartTime = lecture.StartTime;
+        lec.EndTime = lecture.EndTime;
+
+        await _dbContext.SaveChangesAsync();
+        return lec;
     }
 
     public async Task<Lecture?> DeleteLectureByIdAsync(int id)
@@ -116,6 +209,46 @@ public class LectureRepository : ILectureRepository
         {
             return null;
         }
+
+        //if (lecture != null) lecture.LectureVenues = await _dbContext.LectureVenues.Where(x => x.LectureId == id).ToListAsync();
+      
         return lecture;
     }
+
+    public async Task<bool> IsOwner(int userId, string role, int lectureId, int? courseImplementationId=null)
+    {
+        if (role == "admin") return true;
+
+        int ciId;
+        if (courseImplementationId != null) { ciId  = courseImplementationId.Value; }
+        else
+        {
+            Lecture? l = await GetLectureById(lectureId);
+            if (l == null) { return false; }
+            ciId = l.CourseImplementationId;
+        }
+        if (role == "teacher")
+        {
+            IEnumerable<int> courseImpIds = await TeacherCourseImps(userId);
+            if (courseImpIds.Contains(ciId)) return true;
+        }
+        
+        return false;
+    }
+
+    private async Task<IEnumerable<int>> TeacherCourseImps(int userId)
+    {
+        IEnumerable<TeacherProgram> teachPrgms = await _dbContext.TeacherPrograms.Where(x => x.UserId == userId).ToListAsync();
+        IEnumerable<int> progImpIds = from item in teachPrgms select item.ProgramImplementationId;
+        IEnumerable<ProgramCourse> progCourses = await _dbContext.ProgramCourses
+                                                    .Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
+
+        IEnumerable<TeacherCourse> teachCourses = await _dbContext.TeacherCourses.Where(x => x.UserId == userId).ToListAsync();
+        IEnumerable<int> courseImpIdsT = from item in teachCourses select item.CourseImplementationId;
+
+        IEnumerable<int> courseImpIdsP = from item in progCourses select item.CourseImplementationId;
+        courseImpIdsT.ToList().AddRange(courseImpIdsP);
+        return courseImpIdsT;
+    }
+    
 }

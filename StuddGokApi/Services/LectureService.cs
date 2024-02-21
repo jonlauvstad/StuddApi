@@ -5,6 +5,7 @@ using StuddGokApi.Mappers;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using System.Data;
 
 namespace StuddGokApi.Services;
 
@@ -31,8 +32,47 @@ public class LectureService : ILectureService
         _logger = logger;
     }
 
-    public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture)
+    public async Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture, int userId, string role)
     {
+        // SJEKK PÅ TEACHER ER 'EIER'
+        if (! await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId:lecture.CourseImplementationId)) return null;
+
+        string? validated = await ValidateDates(lecture);
+        if (validated != null) { return null; }
+
+        // Check if venue is available - that is if venues selected...
+        int venueId = 0;
+        if (lecture.VenueIds.Any())
+        {
+            venueId = lecture.VenueIds.FirstOrDefault();
+            Event? e = await _venueRepository.CheckVenueAsync(venueId, lecture.StartTime, lecture.EndTime);
+            if (e != null) 
+            { 
+                if(e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") { return null; } 
+            }
+        }
+
+        // Check wheteher teacher is available
+        Lecture? teacherLecture = await _lectureRepository.CheckTeacher(lecture.CourseImplementationId, lecture.StartTime, lecture.EndTime);
+        if (teacherLecture != null)
+        {
+            if(teacherLecture.Id != lecture.Id) { return null; }
+        }
+
+        // Update lecture (and venue - that is lLectureVenue)
+        Lecture? returnLecture = await _lectureRepository.UpdateLectureAndVenueAsync(_lectureMapper.MapToModel(lecture), venueId);
+        if (returnLecture == null) return null;
+        return _lectureMapper.MapToDTO(returnLecture);
+    }
+
+    public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture, int userId, string role)
+    {
+        // SJEKK PÅ TEACHER ER 'EIER'
+        if (!await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId: lecture.CourseImplementationId))
+        {
+            return new LectureBooking(null, null, null, null, null, failMsg: $"Not authorized to add lecture to course with id {lecture.CourseImplementationId}");
+        }
+
         string? validated = await ValidateDates(lecture);
         if (validated != null) 
         {
@@ -87,11 +127,16 @@ public class LectureService : ILectureService
                 ciDTO);
     }
 
-    public async Task<LectureDTO?> DeleteLectureByIdAsync(int id)
+    public async Task<LectureDTO?> DeleteLectureByIdAsync(int id, int userId, string role)
     {
+        // SJEKK PÅ TEACHER ER 'EIER'
+        if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
+
         Lecture? lecture = await _lectureRepository.DeleteLectureByIdAsync(id);
         if (lecture == null) { return null; }
-        return _lectureMapper.MapToDTO(lecture);
+        LectureDTO lecDTO = _lectureMapper.MapToDTO(lecture);
+        await AddTeachers(lecDTO);
+        return lecDTO;
     }
 
     public async Task<LectureDTO?> GetLectureByIdAsync(int id)
@@ -102,6 +147,8 @@ public class LectureService : ILectureService
         await AddTeachers(lecDTO);
         return lecDTO; 
     }
+
+    
 
     private async Task<LectureDTO> AddTeachers(LectureDTO lecDTO)
     {
@@ -120,7 +167,7 @@ public class LectureService : ILectureService
         if(lecture.StartTime > lecture.EndTime) { return "Starttidspunkt må være etter slutttidspunkt"; }
 
         // fra > nå
-        if(lecture.StartTime <= DateTime.Now) { return "Starttisapunktet må være i fremtiden"; }
+        if(lecture.StartTime <= DateTime.Now) { return "Starttidspunktet må være i fremtiden"; }
 
         // fra > kursImpStart
         CourseImplementationDTO? ciDTO = await _courseImpService.GetCourseImpByIdAsync(lecture.CourseImplementationId);
