@@ -11,6 +11,11 @@ using StuddGokApi.Extensions;
 using StuddGokApi.Services.Interfaces;
 using StuddGokApi.Services;
 using StuddGokApi.Middlewear;
+
+using StudentResource.Services.Interfaces;
+using StudentResource.Services;
+using Serilog;
+
 using StuddGokApi.Models;
 using Serilog;
 
@@ -40,16 +45,25 @@ builder.Services.AddScoped<IExamImplementationRepository, ExamImplementationRepo
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<ICourseImpService, CourseImpService>();
 builder.Services.AddScoped<ICourseImpRepository, CourseImpRepository>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<IVenueService, VenueService>();
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IUserService, UserService>();  
 
 builder.Services.AddScoped<UserIdentifier>();
+
+builder.Services.AddScoped<IStudentResourceService, StudentResourceService>();
 
 builder.Services.AddDbContext<StuddGokDbContext>(options =>
     options.UseMySql(builder.Configuration.GetConnectionString("DefaultConnection"),
         new MySqlServerVersion(new Version(8, 0, 21))));
 
 builder.RegisterMappers();
+
+
+
 
 // To jwt-token
 // Configure JWT authentication

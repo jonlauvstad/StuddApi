@@ -37,4 +37,8 @@
     <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ClassLibraries\StudentResource\StudentResource.csproj" />
+  </ItemGroup>
+
 </Project>
