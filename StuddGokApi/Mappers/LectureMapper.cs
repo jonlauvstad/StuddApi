@@ -7,10 +7,12 @@ namespace StuddGokApi.Mappers;
 public class LectureMapper : IMapper<Lecture, LectureDTO>
 {
     private readonly ILectureRepository _lectureRepository;
+    private readonly ILogger<LectureMapper> _logger;
 
-    public LectureMapper(ILectureRepository lectureRepository)
+    public LectureMapper(ILectureRepository lectureRepository, ILogger<LectureMapper> logger)
     {
         _lectureRepository = lectureRepository;
+        _logger = logger;
     }
 
     public LectureDTO MapToDTO(Lecture model)
@@ -18,6 +20,7 @@ public class LectureMapper : IMapper<Lecture, LectureDTO>
         //IEnumerable<User> teachers = await _lectureRepository.GetTeachersByCourseImplementationId(model.CourseImplementationId);
 
         IEnumerable<Venue> venues = from lecVen in model.LectureVenues select lecVen.Venue;
+        _logger.LogDebug($"VENUES-LENGTH:  venues-length: {venues.Count()}");
 
         return new LectureDTO
         {
@@ -30,7 +33,7 @@ public class LectureMapper : IMapper<Lecture, LectureDTO>
 
             //LectureVenues = model.LectureVenues,
             //Attendances = model.Attendances,
-            VenueIds = from ven in venues select ven.Id,
+            VenueIds = from lecVen in model.LectureVenues select lecVen.VenueId,
             VenueNamesList = from ven in venues select ven.Name,
 
             CourseImplementationName = model.CourseImplementation!.Name,

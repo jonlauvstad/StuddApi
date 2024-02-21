@@ -11,9 +11,14 @@ using StuddGokApi.Extensions;
 using StuddGokApi.Services.Interfaces;
 using StuddGokApi.Services;
 using StuddGokApi.Middlewear;
+<<<<<<< HEAD
 using StudentResource.Services.Interfaces;
 using StudentResource.Services;
 
+=======
+using StuddGokApi.Models;
+using Serilog;
+>>>>>>> master
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,7 +87,11 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
+builder.Host.UseSerilog((context, configuration) =>
+{
+    //configuration.MinimumLevel.Debug().WriteTo.Console();  Men vi bruker appsettings
+    configuration.ReadFrom.Configuration(context.Configuration);
+});
 
 var app = builder.Build();
 
