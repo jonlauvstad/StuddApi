@@ -1,10 +1,9 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj": {}
+    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StudentResourceClientTest\\StudentResourceClientTest.csproj": {}
   },
   "projects": {
-<<<<<<< HEAD
     "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\ClassLibraries\\StudentResource\\StudentResource.csproj": {
       "version": "1.0.0",
       "restore": {
@@ -13,16 +12,6 @@
         "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\ClassLibraries\\StudentResource\\StudentResource.csproj",
         "packagesPath": "C:\\Users\\47901\\.nuget\\packages\\",
         "outputPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\ClassLibraries\\StudentResource\\obj\\",
-=======
-    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj": {
-      "version": "1.0.0",
-      "restore": {
-        "projectUniqueName": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj",
-        "projectName": "StuddGokApi",
-        "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj",
-        "packagesPath": "C:\\Users\\47901\\.nuget\\packages\\",
-        "outputPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\obj\\",
->>>>>>> master
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -80,14 +69,14 @@
         }
       }
     },
-    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj": {
+    "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StudentResourceClientTest\\StudentResourceClientTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj",
-        "projectName": "StuddGokApi",
-        "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\StuddGokApi.csproj",
+        "projectUniqueName": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StudentResourceClientTest\\StudentResourceClientTest.csproj",
+        "projectName": "StudentResourceClientTest",
+        "projectPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StudentResourceClientTest\\StudentResourceClientTest.csproj",
         "packagesPath": "C:\\Users\\47901\\.nuget\\packages\\",
-        "outputPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StuddGokApi\\obj\\",
+        "outputPath": "D:\\GA\\B2024\\Prosjektarbeid\\studdapi\\StuddApi\\StudentResourceClientTest\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -124,65 +113,13 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
-            "BCrypt.Net-Next": {
+            "Newtonsoft.Json": {
               "target": "Package",
-              "version": "[4.0.3, )"
+              "version": "[13.0.3, )"
             },
-            "FluentValidation.AspNetCore": {
+            "System.Net.Http": {
               "target": "Package",
-              "version": "[11.3.0, )"
-            },
-            "Microsoft.AspNetCore.Authentication.JwtBearer": {
-              "target": "Package",
-              "version": "[7.0.14, )"
-            },
-            "Microsoft.AspNetCore.Mvc.Testing": {
-              "target": "Package",
-              "version": "[7.0.15, )"
-            },
-            "Microsoft.AspNetCore.OpenApi": {
-              "target": "Package",
-              "version": "[7.0.10, )"
-            },
-            "Microsoft.EntityFrameworkCore": {
-              "target": "Package",
-              "version": "[7.0.12, )"
-            },
-            "Microsoft.EntityFrameworkCore.Design": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[7.0.12, )"
-            },
-            "Microsoft.EntityFrameworkCore.Proxies": {
-              "target": "Package",
-              "version": "[7.0.12, )"
-            },
-            "Microsoft.EntityFrameworkCore.Relational.Design": {
-              "target": "Package",
-              "version": "[1.1.6, )"
-            },
-            "Microsoft.EntityFrameworkCore.Tools": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[7.0.12, )"
-            },
-            "Microsoft.NET.Test.Sdk": {
-              "target": "Package",
-              "version": "[17.9.0, )"
-            },
-            "Pomelo.EntityFrameworkCore.MySql": {
-              "target": "Package",
-              "version": "[7.0.0, )"
-            },
-            "Swashbuckle.AspNetCore": {
-              "target": "Package",
-              "version": "[6.5.0, )"
-            },
-            "Testcontainers.MySql": {
-              "target": "Package",
-              "version": "[3.7.0, )"
+              "version": "[4.3.4, )"
             }
           },
           "imports": [
@@ -197,9 +134,6 @@
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
-            "Microsoft.AspNetCore.App": {
-              "privateAssets": "none"
-            },
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
