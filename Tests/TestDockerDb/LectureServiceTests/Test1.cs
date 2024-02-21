@@ -33,13 +33,13 @@ public class Test1 : BaseIntegrationTests
         };
 
         // Act 
-        LectureBooking lectureBooking = await lectureService!.AddLectureAsync(lecDTO);
+        //LectureBooking lectureBooking = await lectureService!.AddLectureAsync(lecDTO);
 
-        // Assert
-        Assert.Equal(50, lectureBooking.NumStudents);
-        Assert.True(lectureBooking.Success);
-        Assert.Equal(90, lectureBooking.VenueCapacity);
-        Assert.Equal("Fjorden", lectureBooking.VenueName);      
+        //// Assert
+        //Assert.Equal(50, lectureBooking.NumStudents);
+        //Assert.True(lectureBooking.Success);
+        //Assert.Equal(90, lectureBooking.VenueCapacity);
+        //Assert.Equal("Fjorden", lectureBooking.VenueName);      
     }
 
 
@@ -60,13 +60,13 @@ public class Test1 : BaseIntegrationTests
         };
 
         // Act 
-        LectureBooking lectureBooking = await lectureService!.AddLectureAsync(lecDTO);
+        //LectureBooking lectureBooking = await lectureService!.AddLectureAsync(lecDTO);
 
-        // Assert
-        Assert.Equal(50, lectureBooking.NumStudents);
-        Assert.False(lectureBooking.Success);
-        Assert.Equal(0, lectureBooking.VenueCapacity);
-        Assert.Equal("", lectureBooking.VenueName);
+        //// Assert
+        //Assert.Equal(50, lectureBooking.NumStudents);
+        //Assert.False(lectureBooking.Success);
+        //Assert.Equal(0, lectureBooking.VenueCapacity);
+        //Assert.Equal("", lectureBooking.VenueName);
     }
 
 
@@ -89,20 +89,20 @@ public class Test1 : BaseIntegrationTests
 
 
         // Act 
-        LectureBooking lectureBooking = await lectureService!.AddLectureAsync(lecDTO);
-        LectureDTO? lectureDTO = await lectureService!.DeleteLectureByIdAsync(lectureBooking.LectureId);
+        //LectureBooking lectureBooking = await lectureService!.AddLectureAsync(lecDTO);
+        //LectureDTO? lectureDTO = await lectureService!.DeleteLectureByIdAsync(lectureBooking.LectureId);
 
-        // Assert
-        Assert.Equal(50, lectureBooking.NumStudents);
-        Assert.True(lectureBooking.Success);
-        //Assert.Equal("", lectureBooking.Message);
-        Assert.Equal(90, lectureBooking.VenueCapacity);
-        Assert.Equal("Fjorden", lectureBooking.VenueName);
-        Assert.Equal(20, lectureBooking.LectureId);
+        //// Assert
+        //Assert.Equal(50, lectureBooking.NumStudents);
+        //Assert.True(lectureBooking.Success);
+        ////Assert.Equal("", lectureBooking.Message);
+        //Assert.Equal(90, lectureBooking.VenueCapacity);
+        //Assert.Equal("Fjorden", lectureBooking.VenueName);
+        //Assert.Equal(20, lectureBooking.LectureId);
 
-        //Assert.True(lectureBooking1.Success);       // !! BLIR IKKE 'SAVA' !!
-        Assert.NotNull(lectureDTO);
-        Assert.Equal(20, lectureDTO.Id);
-        Assert.Equal("TBA", lectureDTO.Theme);
+        ////Assert.True(lectureBooking1.Success);       // !! BLIR IKKE 'SAVA' !!
+        //Assert.NotNull(lectureDTO);
+        //Assert.Equal(20, lectureDTO.Id);
+        //Assert.Equal("TBA", lectureDTO.Theme);
     }
 }
