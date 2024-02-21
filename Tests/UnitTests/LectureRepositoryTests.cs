@@ -1,4 +1,6 @@
-﻿using StuddGokApi.Data;
+﻿using Microsoft.Extensions.Logging;
+using Moq;
+using StuddGokApi.Data;
 using StuddGokApi.DTMs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories;
@@ -19,7 +21,7 @@ public class LectureRepositoryTests : IClassFixture<TestFixture>
     public LectureRepositoryTests(TestFixture fixture)
     {
         _dbContext = fixture.DbContext;
-        _lectureRepo = new LectureRepository(_dbContext);
+        _lectureRepo = new LectureRepository(_dbContext, new Mock<ILogger<LectureRepository>>().Object);
     }
 
     [Fact]
