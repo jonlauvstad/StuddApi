@@ -62,10 +62,28 @@ public class VenueRepository : IVenueRepository
         return null;
     }
 
-    public async Task<IEnumerable<Venue>> GetAllVenuesAsync()
+    public async Task<IEnumerable<Venue>> GetAllVenuesAsync((DateTime from, DateTime to)? availableFromTo = null)
     {
         IEnumerable<Venue> venues = await _dbContext.Venues.ToListAsync();
-        return venues.OrderBy(x => x.Name);
+        if (availableFromTo == null)
+        {
+            return venues.OrderBy(x => x.Name);
+        }
+
+        // ExamImplementations
+        IEnumerable<ExamImplementation> eis =
+            await _dbContext.ExamImplementations.Where(x => x.StartTime < availableFromTo.Value.to && x.EndTime > availableFromTo.Value.from)
+                .ToListAsync();
+        List<Venue> occupiedVenues = (from ei in eis select ei.Venue).ToList();
+
+        // Lectures
+        IEnumerable<LectureVenue> lvs =
+            await _dbContext.LectureVenues.Where(x => x.Lecture!.StartTime < availableFromTo.Value.to &&
+            x.Lecture.EndTime > availableFromTo.Value.from).ToListAsync();
+        occupiedVenues.AddRange(from lv in lvs  select lv.Venue);
+
+        return venues.Where(x => !occupiedVenues.Contains(x));
+        
     }
 
     public async Task<Venue?> GetVenueByIdAsync(int id)

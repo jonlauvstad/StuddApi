@@ -18,9 +18,10 @@ public class VenueController : ControllerBase
 
     [Authorize]
     [HttpGet(Name = "GetAllVenues")]
-    public async Task<ActionResult<IEnumerable<VenueDTO>>> GetAllVenues()
+    public async Task<ActionResult<IEnumerable<VenueDTO>>> GetAllVenues(DateTime? from = null, DateTime? to  = null)
     {
-        IEnumerable<VenueDTO> venues = await _venueService.GetAllVenuesAsync();
+        (DateTime from, DateTime to)? availableFromTo = from == null || to == null ? null : (from.Value, to.Value);
+        IEnumerable<VenueDTO> venues = await _venueService.GetAllVenuesAsync(availableFromTo);
         return Ok(venues);
     }
 

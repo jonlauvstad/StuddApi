@@ -18,9 +18,9 @@ public class VenueService : IVenueService
     }
 
 
-    public async Task<IEnumerable<VenueDTO>> GetAllVenuesAsync()
+    public async Task<IEnumerable<VenueDTO>> GetAllVenuesAsync((DateTime from, DateTime to)? availableFromTo = null)
     {
-        IEnumerable<Venue> venues = await _venueRepository.GetAllVenuesAsync();
+        IEnumerable<Venue> venues = await _venueRepository.GetAllVenuesAsync(availableFromTo);
         return from venue in venues select _venueMapper.MapToDTO(venue);
     }
 }
