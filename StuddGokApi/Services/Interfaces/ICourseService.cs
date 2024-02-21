@@ -4,5 +4,5 @@ namespace StuddGokApi.Services.Interfaces;
 
 public interface ICourseService
 {
-    Task<CourseDTO> GetCourseByIdAsync(int courseId);
+    Task<CourseDTO?> GetCourseByIdAsync(int courseId);
 }

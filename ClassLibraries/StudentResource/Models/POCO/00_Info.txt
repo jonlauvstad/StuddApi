@@ -1,0 +1,5 @@
+﻿POCOs (Plain Old CLR Objects)
+in your class library that match the structure of the
+JSON being returned by your API.
+POCOs are essentially acting as DTOs within your class library, 
+but their sole purpose is to facilitate data handling after you fetch it from the API.

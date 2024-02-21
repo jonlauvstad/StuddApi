@@ -443,8 +443,15 @@ C:\Users\Eier\source\repos\StuddGokApi\StuddGokApi\bin\Debug\net7.0\zh-Hant\Micr
 C:\Users\Eier\source\repos\StuddGokApi\StuddGokApi\bin\Debug\net7.0\zh-Hant\Microsoft.TestPlatform.CrossPlatEngine.resources.dll
 C:\Users\Eier\source\repos\StuddGokApi\StuddGokApi\bin\Debug\net7.0\zh-Hant\Microsoft.VisualStudio.TestPlatform.Common.resources.dll
 C:\Users\Eier\source\repos\StuddGokApi\StuddGokApi\obj\Debug\net7.0\MvcTestingAppManifest.json
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\testhost.exe
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.csproj.AssemblyReference.cache
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\MvcTestingAppManifest.json
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.GeneratedMSBuildEditorConfig.editorconfig
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.AssemblyInfoInputs.cache
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.AssemblyInfo.cs
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.csproj.CoreCompileInputs.cache
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.MvcApplicationPartsAssemblyInfo.cache
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\testhost.dll
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\testhost.exe
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\appsettings.Development.json
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\appsettings.json
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\MvcTestingAppManifest.json
@@ -868,14 +875,6 @@ D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\zh-Han
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\zh-Hant\Microsoft.VisualStudio.TestPlatform.Common.resources.dll
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\StudentResource.dll
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\bin\Debug\net7.0\StudentResource.pdb
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.csproj.AssemblyReference.cache
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\MvcTestingAppManifest.json
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.GeneratedMSBuildEditorConfig.editorconfig
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.AssemblyInfoInputs.cache
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.AssemblyInfo.cs
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.csproj.CoreCompileInputs.cache
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.MvcApplicationPartsAssemblyInfo.cs
-D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.MvcApplicationPartsAssemblyInfo.cache
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\staticwebassets\msbuild.StuddGokApi.Microsoft.AspNetCore.StaticWebAssets.props
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\staticwebassets\msbuild.build.StuddGokApi.props
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\staticwebassets\msbuild.buildMultiTargeting.StuddGokApi.props
@@ -890,3 +889,4 @@ D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\refint
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.pdb
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.genruntimeconfig.cache
 D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\ref\StuddGokApi.dll
+D:\GA\B2024\Prosjektarbeid\studdapi\StuddApi\StuddGokApi\obj\Debug\net7.0\StuddGokApi.MvcApplicationPartsAssemblyInfo.cs

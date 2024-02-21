@@ -3,24 +3,26 @@ using StuddGokApi.Data;
 using StuddGokApi.DTOs;
 using StuddGokApi.Mappers;
 using StuddGokApi.Models;
+using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
 
 namespace StuddGokApi.Services;
 
 public class UserService : IUserService
 {
-    private readonly StuddGokDbContext _context;
-    private readonly UserMapper _userMapper;
+    private readonly IUserRepository _userRepository;
+    private readonly IMapper<User, UserDTO> _userMapper;
 
-    public UserService(StuddGokDbContext context, UserMapper userMapper)
+    public UserService(IUserRepository userRepository, IMapper<User, UserDTO> userMapper)
     {
-        _context = context;
+        _userRepository = userRepository;
         _userMapper = userMapper;
     }
-    public async Task<UserDTO> GetUserByIdAsync(int userId)
+
+    public async Task<UserDTO?> GetUserByIdAsync(int userId)
     {
-        var user = await _context.Users.FirstOrDefaultAsync(c => c.Id == userId);
+        var user = await _userRepository.GetUserByIdAsync(userId);
         return user != null ? _userMapper.MapToDTO(user) : null;
     }
-
 }
+

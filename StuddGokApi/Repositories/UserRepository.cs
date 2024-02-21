@@ -18,4 +18,9 @@ public class UserRepository : IUserRepository
         IEnumerable<User> users = await _dbContext.Users.Where(x => x.GokstadEmail == gokstadEmail).ToListAsync();
         return users.FirstOrDefault();
     }
+
+    public async Task<User?> GetUserByIdAsync(int userId)
+    {
+        return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
+    }
 }

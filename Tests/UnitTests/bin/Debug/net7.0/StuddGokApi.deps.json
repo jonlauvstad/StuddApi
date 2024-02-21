@@ -47,6 +47,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "7.0.12",
           "Microsoft.NET.Test.Sdk": "17.9.0",
           "Pomelo.EntityFrameworkCore.MySql": "7.0.0",
+          "StudentResource": "1.0.0",
           "Swashbuckle.AspNetCore": "6.5.0",
           "Testcontainers.MySql": "3.7.0",
           "Microsoft.AspNetCore.Antiforgery": "7.0.0.0",
@@ -391,7 +392,7 @@
       },
       "Docker.DotNet/3.125.15": {
         "dependencies": {
-          "Newtonsoft.Json": "13.0.1",
+          "Newtonsoft.Json": "13.0.3",
           "System.Buffers": "4.5.1",
           "System.Threading.Tasks.Extensions": "4.5.4"
         },
@@ -1067,7 +1068,7 @@
       "Microsoft.TestPlatform.TestHost/17.9.0": {
         "dependencies": {
           "Microsoft.TestPlatform.ObjectModel": "17.9.0",
-          "Newtonsoft.Json": "13.0.1"
+          "Newtonsoft.Json": "13.0.3"
         },
         "runtime": {
           "lib/netcoreapp3.1/Microsoft.TestPlatform.CommunicationUtilities.dll": {
@@ -1298,15 +1299,15 @@
           "System.Xml.XDocument": "4.3.0"
         }
       },
-      "Newtonsoft.Json/13.0.1": {
+      "Newtonsoft.Json/13.0.3": {
         "runtime": {
-          "lib/netstandard2.0/Newtonsoft.Json.dll": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
             "assemblyVersion": "13.0.0.0",
-            "fileVersion": "13.0.1.25517"
+            "fileVersion": "13.0.3.27908"
           }
         },
         "compile": {
-          "lib/netstandard2.0/Newtonsoft.Json.dll": {}
+          "lib/net6.0/Newtonsoft.Json.dll": {}
         }
       },
       "Pomelo.EntityFrameworkCore.MySql/7.0.0": {
@@ -2045,6 +2046,17 @@
         },
         "compile": {
           "lib/netstandard2.1/Testcontainers.MySql.dll": {}
+        }
+      },
+      "StudentResource/1.0.0": {
+        "dependencies": {
+          "Newtonsoft.Json": "13.0.3"
+        },
+        "runtime": {
+          "StudentResource.dll": {}
+        },
+        "compile": {
+          "StudentResource.dll": {}
         }
       },
       "Microsoft.AspNetCore.Antiforgery/7.0.0.0": {
@@ -4307,12 +4319,12 @@
       "path": "netstandard.library/1.6.1",
       "hashPath": "netstandard.library.1.6.1.nupkg.sha512"
     },
-    "Newtonsoft.Json/13.0.1": {
+    "Newtonsoft.Json/13.0.3": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
-      "path": "newtonsoft.json/13.0.1",
-      "hashPath": "newtonsoft.json.13.0.1.nupkg.sha512"
+      "sha512": "sha512-HrC5BXdl00IP9zeV+0Z848QWPAoCr9P3bDEZguI+gkLcBKAOxix/tLEAAHC+UvDNPv4a2d18lOReHMOagPa+zQ==",
+      "path": "newtonsoft.json/13.0.3",
+      "hashPath": "newtonsoft.json.13.0.3.nupkg.sha512"
     },
     "Pomelo.EntityFrameworkCore.MySql/7.0.0": {
       "type": "package",
@@ -4915,6 +4927,11 @@
       "sha512": "sha512-Zs1PJZkhwo5llN/ZfrF4W+UuBCZ/r8nQnfmGQyhPJMrpenrxnLzt9+ozAZX+udulE/7MeQemyMpNdq7jeDuhHg==",
       "path": "testcontainers.mysql/3.7.0",
       "hashPath": "testcontainers.mysql.3.7.0.nupkg.sha512"
+    },
+    "StudentResource/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
     },
     "Microsoft.AspNetCore.Antiforgery/7.0.0.0": {
       "type": "referenceassembly",

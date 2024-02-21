@@ -11,7 +11,6 @@ public class StudentNoteTagModel
 {
     public int Id { get; set; }
     public string Name { get; set; }
-    [ForeignKey]
     public int NoteId { get; set; }
 
 }
