@@ -4,5 +4,5 @@ namespace StuddGokApi.Services.Interfaces;
 
 public interface IVenueService
 {
-    Task<IEnumerable<VenueDTO>> GetAllVenuesAsync();
+    Task<IEnumerable<VenueDTO>> GetAllVenuesAsync((DateTime from, DateTime to)? availableFromTo = null);
 }
