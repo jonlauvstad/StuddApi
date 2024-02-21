@@ -11,14 +11,13 @@ using StuddGokApi.Extensions;
 using StuddGokApi.Services.Interfaces;
 using StuddGokApi.Services;
 using StuddGokApi.Middlewear;
-<<<<<<< HEAD
+
 using StudentResource.Services.Interfaces;
 using StudentResource.Services;
+using Serilog;
 
-=======
 using StuddGokApi.Models;
 using Serilog;
->>>>>>> master
 
 var builder = WebApplication.CreateBuilder(args);
 
