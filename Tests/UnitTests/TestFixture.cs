@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Castle.Core.Logging;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 using StuddGokApi.Data;
 using StuddGokApi.Repositories;
 using StuddGokApi.Repositories.Interfaces;
@@ -20,7 +23,7 @@ public class TestFixture : IDisposable
     public ILectureRepository LectureRepository { get; }
     public IVenueRepository VenueRepository { get; }
     //public ILectureService LectureService { get; }
-
+    
     public TestFixture()
     {
         // Initialize your DbContext using the configuration from the main project
@@ -37,7 +40,7 @@ public class TestFixture : IDisposable
 
         DbContext = new StuddGokDbContext(options);
 
-        LectureRepository = new LectureRepository(DbContext);
+        LectureRepository = new LectureRepository(DbContext, new Mock<ILogger<LectureRepository>>().Object);
         VenueRepository = new VenueRepository(DbContext);
         //LectureService = new LectureService(LectureRepository, VenueRepository);
     }
