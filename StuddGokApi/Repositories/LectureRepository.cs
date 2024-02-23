@@ -38,7 +38,13 @@ public class LectureRepository : ILectureRepository
         IEnumerable<TeacherCourse> tcs =  await _dbContext.TeacherCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
         return from tc in tcs select tc.User;
     }
-
+    public async Task<IEnumerable<User>> GetProgramTeachersByCourseImplementationId(int courseImpId)
+    {
+        IEnumerable<ProgramCourse> pcs = await _dbContext.ProgramCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
+        IEnumerable<int> progImpIds = from pc in pcs select pc.ProgramImplementationId;
+        IEnumerable<TeacherProgram> tps = await _dbContext.TeacherPrograms.Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
+        return from tp in tps select tp.User;
+    }
     public async Task<Lecture?> CheckTeacher(int courseImpId, DateTime from, DateTime to)
     {
         // Finding the teacher
@@ -250,5 +256,6 @@ public class LectureRepository : ILectureRepository
         courseImpIdsT.ToList().AddRange(courseImpIdsP);
         return courseImpIdsT;
     }
+
     
 }
