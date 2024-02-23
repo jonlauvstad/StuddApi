@@ -23,4 +23,11 @@ public class UserRepository : IUserRepository
     {
         return await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userId);
     }
+
+    public async Task<IEnumerable<User>> GetUsersAsync(string? role)
+    {
+        IEnumerable<User> users = await _dbContext.Users.ToListAsync();
+        if (role != null) users = users.Where(x => x.Role == role);
+        return users;
+    }
 }
