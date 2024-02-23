@@ -221,6 +221,29 @@ public class LectureRepository : ILectureRepository
         return lecture;
     }
 
+    public async Task<IEnumerable<Lecture>> GetLecturesAsync(DateTime? startAfter, DateTime? endBy, int? courseImpId, int? venueId, int? teacherId)
+    {
+        if (startAfter == null) startAfter = DateTime.Now;
+        if (endBy == null) endBy = DateTime.MaxValue;
+
+        IEnumerable<Lecture> lectures = await _dbContext.Lectures.Where(x => x.StartTime > startAfter && x.EndTime < endBy).ToListAsync();
+        if (courseImpId != null)  lectures = lectures.Where(x => x.CourseImplementationId == courseImpId);
+        
+        if (venueId != null)
+        {
+            IEnumerable<LectureVenue> lecVens = await _dbContext.LectureVenues.Where(x => x.VenueId == venueId).ToListAsync();
+            lectures = lectures.Where(x => (from lv in lecVens select lv.LectureId).Contains(x.Id));
+        }
+
+        if (teacherId != null)
+        {
+            IEnumerable<TeacherCourse> tcs = await _dbContext.TeacherCourses.Where(x => x.UserId == teacherId).ToListAsync();
+            lectures = lectures.Where(x => (from tc in tcs select tc.CourseImplementationId).Contains(x.CourseImplementationId));
+        }
+
+        return lectures;
+    }
+
     public async Task<bool> IsOwner(int userId, string role, int lectureId, int? courseImplementationId=null)
     {
         if (role == "admin") return true;

@@ -67,5 +67,11 @@ public class LectureController : ControllerBase
         return Ok(lecDTO);
     }
 
-
+    [Authorize]
+    [HttpGet(Name = "GetLectures")]
+    public async Task<ActionResult<IEnumerable<LectureDTO>>> GetLectures(DateTime? startAfter=null, DateTime? endBy=null, int? courseImpId=null,
+        int? venueId=null, int? teacherId=null)
+    {
+        return Ok(await _lectureService.GetLecturesAsync(startAfter, endBy, courseImpId, venueId, teacherId));
+    }
 }
