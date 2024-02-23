@@ -24,5 +24,11 @@ public class UserService : IUserService
         var user = await _userRepository.GetUserByIdAsync(userId);
         return user != null ? _userMapper.MapToDTO(user) : null;
     }
+
+    public async Task<IEnumerable<UserDTO>> GetUsersAsync(string? role)
+    {
+        IEnumerable<User> users = await _userRepository.GetUsersAsync(role);
+        return from user in users select _userMapper.MapToDTO(user);     
+    }
 }
 
