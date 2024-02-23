@@ -62,7 +62,8 @@ public class LectureService : ILectureService
         // Update lecture (and venue - that is lLectureVenue)
         Lecture? returnLecture = await _lectureRepository.UpdateLectureAndVenueAsync(_lectureMapper.MapToModel(lecture), venueId);
         if (returnLecture == null) return null;
-        return _lectureMapper.MapToDTO(returnLecture);
+        LectureDTO returnLectureDTO = _lectureMapper.MapToDTO(returnLecture);
+        return await AddTeachers(returnLectureDTO); //_lectureMapper.MapToDTO(returnLecture);
     }
 
     public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture, int userId, string role)
@@ -156,6 +157,10 @@ public class LectureService : ILectureService
         IEnumerable<string> teacherNames = from t in teachers select $"{t.FirstName} {t.LastName}";
         lecDTO.TeacherNames = string.Join(", ", teacherNames);
         lecDTO.TeacherUserIds = (from t in teachers select t.Id).ToList();
+
+        IEnumerable<User> progTeachers = await _lectureRepository.GetProgramTeachersByCourseImplementationId(lecDTO.CourseImplementationId);
+        lecDTO.ProgramTeacherUserIds = (from pt in progTeachers select pt.Id).ToList();
+
         return lecDTO;
     }
 

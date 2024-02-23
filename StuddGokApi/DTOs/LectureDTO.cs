@@ -39,4 +39,5 @@ public class LectureDTO
     public string CourseImplementationCode { get; set; } = string.Empty;
     public string TeacherNames { get; set; } = string.Empty;
     public List<int> TeacherUserIds { get; set; } = new List<int>();
+    public List<int> ProgramTeacherUserIds { get; set; } = new List<int>();
 }
