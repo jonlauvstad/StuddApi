@@ -1,4 +1,6 @@
-﻿using StuddGokApi.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using StuddGokApi.DTOs;
+using StuddGokApi.Models;
 
 namespace StuddGokApi.Repositories.Interfaces;
 
@@ -14,4 +16,5 @@ public interface ILectureRepository
     Task<Lecture?> UpdateLectureAsync(Lecture lecture);
     Task<Lecture?> UpdateLectureAndVenueAsync(Lecture lecture, int venueId);
     Task<bool> IsOwner(int userId, string role, int lectureId, int? courseImplementationId = null);
+    Task<IEnumerable<Lecture>> GetLecturesAsync(DateTime? startAfter, DateTime? endBy, int? courseImpId, int? venueId, int? teacherId);
 }

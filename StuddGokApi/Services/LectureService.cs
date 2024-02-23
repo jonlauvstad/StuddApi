@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 using StuddGokApi.DTMs;
 using StuddGokApi.DTOs;
 using StuddGokApi.Mappers;
@@ -149,7 +150,19 @@ public class LectureService : ILectureService
         return lecDTO; 
     }
 
-    
+    public async Task<IEnumerable<LectureDTO>> GetLecturesAsync(DateTime? startAfter, DateTime? endBy, int? courseImpId, int? venueId, int? teacherId)
+    {
+        IEnumerable<Lecture> lectures = await _lectureRepository.GetLecturesAsync(startAfter, endBy, courseImpId, venueId, teacherId);
+        IEnumerable<LectureDTO> lecDTOs = from lec in lectures select _lectureMapper.MapToDTO(lec);  
+        
+        List<LectureDTO> dTOs = new List<LectureDTO>();
+        foreach (var dto in lecDTOs)
+        {
+            dTOs.Add(await AddTeachers(dto));
+        }
+
+        return dTOs;
+    }
 
     private async Task<LectureDTO> AddTeachers(LectureDTO lecDTO)
     {
@@ -183,4 +196,6 @@ public class LectureService : ILectureService
 
         return s;
     }
+
+    
 }
