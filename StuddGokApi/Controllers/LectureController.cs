@@ -74,4 +74,13 @@ public class LectureController : ControllerBase
     {
         return Ok(await _lectureService.GetLecturesAsync(startAfter, endBy, courseImpId, venueId, teacherId));
     }
+
+    [Authorize(Roles = "admin, teacher")]
+    [HttpDelete(Name = "DeleteMultipleLectures")]
+    public async Task<ActionResult<IEnumerable<LectureDTO>>> DeleteMultiple([FromQuery] string id_string)
+    {
+        IEnumerable<LectureDTO>? lecDTOs = await _lectureService.DeleteMultipleAsync(id_string);
+        if (lecDTOs == null) return NotFound($"Unable to delete all the requested lectures with ids {id_string}.");
+        return Ok(lecDTOs);
+    }
 }

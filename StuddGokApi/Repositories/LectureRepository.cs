@@ -265,6 +265,35 @@ public class LectureRepository : ILectureRepository
         return false;
     }
 
+    public async Task<IEnumerable<Lecture>?> DeleteMultipleAsync(IEnumerable<int> ids)
+    {
+        int numLectures = ids.Count();
+        IEnumerable<Lecture>? deletedLectures = null;
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    deletedLectures = await _dbContext.Lectures.Where(x => ids.Contains(x.Id)).ToListAsync();
+
+                    int numDeleted = await _dbContext.Lectures.Where(x => ids.Contains(x.Id)).ExecuteDeleteAsync();
+                    await _dbContext.SaveChangesAsync();
+                    if (numDeleted != numLectures) { throw new Exception(); }
+
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+            }
+        });
+        return deletedLectures;
+    }
+
     private async Task<IEnumerable<int>> TeacherCourseImps(int userId)
     {
         IEnumerable<TeacherProgram> teachPrgms = await _dbContext.TeacherPrograms.Where(x => x.UserId == userId).ToListAsync();
