@@ -164,6 +164,14 @@ public class LectureService : ILectureService
         return dTOs;
     }
 
+    public async Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string)
+    {
+        IEnumerable<int> ids = from str in id_string.Split(",") select Convert.ToInt32(str);
+        IEnumerable<Lecture>? lectures = await _lectureRepository.DeleteMultipleAsync(ids);
+        if (lectures == null) return null;
+        return from lec in lectures select _lectureMapper.MapToDTO(lec);
+    }
+
     private async Task<LectureDTO> AddTeachers(LectureDTO lecDTO)
     {
         IEnumerable<User> teachers = await _lectureRepository.GetTeachersByCourseImplementationId(lecDTO.CourseImplementationId);
