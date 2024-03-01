@@ -13,5 +13,6 @@ public interface ILectureService
     Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture, int userId, string role);
     Task<IEnumerable<LectureDTO>> GetLecturesAsync(DateTime? startAfter, DateTime? endBy, int? courseImpId,
         int? venueId, int? teacherId);
-    Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string);
+    Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string, int userId, string role);  // var: (string id_string)
+    Task<IEnumerable<LectureDTO>?> AddMultipleAsync(IEnumerable<LectureDTO> lectureDTOs, int userId, string role);
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Logging;
 using StuddGokApi.Data;
 using StuddGokApi.DTMs;
+using StuddGokApi.DTOs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using System.Diagnostics;
@@ -112,6 +113,49 @@ public class LectureRepository : ILectureRepository
         return (l, lec_ven);        
     }
 
+    public async Task<IEnumerable<Lecture>?> AddMultipleAsync(IEnumerable<Lecture> lectures, IEnumerable<IEnumerable<int>> venueIds)
+    {
+        // Null values for lectures and corrsponding venueIds to return after ExecutionStrategy (Transaction)
+        // - to have variables to return, and to be null if something fails.
+        IEnumerable<Lecture>? returnLectures = null;
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Adding lectureVenues
+                    List<Lecture> lec_list = lectures.ToList();
+                    List<IEnumerable<int>> venId_list = venueIds.ToList();
+                    for (int i = 0; i < lectures.Count(); i++)
+                    {
+                        await _dbContext.Lectures.AddAsync(lec_list[i]);
+                        await _dbContext.SaveChangesAsync();
+
+                        if (venId_list[i].Any())
+                        {
+                            LectureVenue lecVen = new LectureVenue { LectureId = lec_list[i].Id, VenueId = venId_list[i].FirstOrDefault() };
+                            await _dbContext.LectureVenues.AddAsync(lecVen);
+                            await _dbContext.SaveChangesAsync();
+                            lecVen.Venue = _dbContext.Venues.FirstOrDefault(x => x.Id == lecVen.VenueId);
+                            lec_list[i].LectureVenues.Add(lecVen);
+                        }
+                    }
+                    transaction.Commit();
+                    returnLectures = lec_list;
+                }
+                catch
+                {
+                    transaction.Rollback();
+                }
+            }
+        });
+        return returnLectures;
+    }
+
+
     public async Task<Lecture?> UpdateLectureAndVenueAsync(Lecture lecture, int venueId)    // venueId is existing lecture's venue (or 0)
     {                                                                                       // it has been extracted from the venueDTO in Service
         Lecture? l = null;                                                                  // necessary to to this because Lecture returned from
@@ -186,6 +230,7 @@ public class LectureRepository : ILectureRepository
             return l;
     }
 
+   
     public async Task<Lecture?> UpdateLectureAsync(Lecture lecture)
     {
         // The null-coalescing operator ?? returns the value of its left-hand operand if it isn't null;
