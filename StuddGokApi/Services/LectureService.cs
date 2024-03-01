@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
+using Org.BouncyCastle.Crypto;
 using StuddGokApi.DTMs;
 using StuddGokApi.DTOs;
 using StuddGokApi.Mappers;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using StudentResource.Models.POCO;
 using System.Data;
 
 namespace StuddGokApi.Services;
@@ -65,6 +67,54 @@ public class LectureService : ILectureService
         if (returnLecture == null) return null;
         LectureDTO returnLectureDTO = _lectureMapper.MapToDTO(returnLecture);
         return await AddTeachers(returnLectureDTO); //_lectureMapper.MapToDTO(returnLecture);
+    }
+
+    public async Task<IEnumerable<LectureDTO>?> AddMultipleAsync(IEnumerable<LectureDTO> lectureDTOs, int userId, string role)
+    {
+        // SJEKK PÅ TEACHER ER 'EIER'
+        foreach (int id in from lec in lectureDTOs select lec.CourseImplementationId)
+        {
+            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
+        }
+
+        // VALIDERE DATOER/TIDER
+        foreach(LectureDTO lectureDTO in lectureDTOs)
+        {
+            string? validated = await ValidateDates(lectureDTO);
+            if (validated != null) { return null; }
+        }
+
+        // CHECK IF VENUE IS AVAILABLE - that is if venues selected...
+        foreach (LectureDTO lecture in lectureDTOs)
+        {
+            int venueId = 0;
+            if (lecture.VenueIds.Any())
+            {
+                venueId = lecture.VenueIds.FirstOrDefault();
+                Event? e = await _venueRepository.CheckVenueAsync(venueId, lecture.StartTime, lecture.EndTime);
+                if (e != null)
+                {
+                    if (e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") { return null; }
+                }
+            }
+        }
+
+        // CHECK WHETHER TEACHER IS AVAILABLE
+        foreach (LectureDTO lecture in lectureDTOs)
+        {
+            Lecture? teacherLecture = await _lectureRepository.CheckTeacher(lecture.CourseImplementationId, lecture.StartTime, lecture.EndTime);
+            if (teacherLecture != null)
+            {
+                if (teacherLecture.Id != lecture.Id) { return null; }
+            }
+        }
+
+        // ADD THE LECTURE(DTO)S (and venues - that is lLectureVenue)
+        IEnumerable<Lecture>? lectures = 
+            await _lectureRepository.AddMultipleAsync(from lectureDTO in lectureDTOs select _lectureMapper.MapToModel(lectureDTO),
+                from LectureDTO in lectureDTOs select LectureDTO.VenueIds);
+        if (lectures == null) return null;
+        return from lec in lectures select _lectureMapper.MapToDTO(lec);
     }
 
     public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture, int userId, string role)
@@ -164,9 +214,13 @@ public class LectureService : ILectureService
         return dTOs;
     }
 
-    public async Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string)
+    public async Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string, int userId, string role)   // var: (string id_string)
     {
         IEnumerable<int> ids = from str in id_string.Split(",") select Convert.ToInt32(str);
+        foreach(var id in ids)                                                                                      // NY
+        {                                                                                                           // NY
+            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;     // NY
+        }                                                                                                           // NY
         IEnumerable<Lecture>? lectures = await _lectureRepository.DeleteMultipleAsync(ids);
         if (lectures == null) return null;
         return from lec in lectures select _lectureMapper.MapToDTO(lec);
@@ -174,12 +228,12 @@ public class LectureService : ILectureService
 
     private async Task<LectureDTO> AddTeachers(LectureDTO lecDTO)
     {
-        IEnumerable<User> teachers = await _lectureRepository.GetTeachersByCourseImplementationId(lecDTO.CourseImplementationId);
+        IEnumerable<StuddGokApi.Models.User> teachers = await _lectureRepository.GetTeachersByCourseImplementationId(lecDTO.CourseImplementationId);
         IEnumerable<string> teacherNames = from t in teachers select $"{t.FirstName} {t.LastName}";
         lecDTO.TeacherNames = string.Join(", ", teacherNames);
         lecDTO.TeacherUserIds = (from t in teachers select t.Id).ToList();
 
-        IEnumerable<User> progTeachers = await _lectureRepository.GetProgramTeachersByCourseImplementationId(lecDTO.CourseImplementationId);
+        IEnumerable<StuddGokApi.Models.User> progTeachers = await _lectureRepository.GetProgramTeachersByCourseImplementationId(lecDTO.CourseImplementationId);
         lecDTO.ProgramTeacherUserIds = (from pt in progTeachers select pt.Id).ToList();
 
         return lecDTO;

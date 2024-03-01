@@ -18,4 +18,5 @@ public interface ILectureRepository
     Task<bool> IsOwner(int userId, string role, int lectureId, int? courseImplementationId = null);
     Task<IEnumerable<Lecture>> GetLecturesAsync(DateTime? startAfter, DateTime? endBy, int? courseImpId, int? venueId, int? teacherId);
     Task<IEnumerable<Lecture>?> DeleteMultipleAsync(IEnumerable<int> ids);
+    Task<IEnumerable<Lecture>?> AddMultipleAsync(IEnumerable<Lecture> lectures, IEnumerable<IEnumerable<int>> venueIds);
 }

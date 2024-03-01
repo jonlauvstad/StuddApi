@@ -79,8 +79,22 @@ public class LectureController : ControllerBase
     [HttpDelete(Name = "DeleteMultipleLectures")]
     public async Task<ActionResult<IEnumerable<LectureDTO>>> DeleteMultiple([FromQuery] string id_string)
     {
-        IEnumerable<LectureDTO>? lecDTOs = await _lectureService.DeleteMultipleAsync(id_string);
+        int user_id = (int)HttpContext.Items["UserId"]!;                                                                // NY
+        string role = (string)HttpContext.Items["Role"]!;                                                               // NY
+        IEnumerable<LectureDTO>? lecDTOs = await _lectureService.DeleteMultipleAsync(id_string, user_id, role);         // var: (id_string)
         if (lecDTOs == null) return NotFound($"Unable to delete all the requested lectures with ids {id_string}.");
+        return Ok(lecDTOs);
+    }
+
+    [Authorize(Roles = "admin, teacher")]
+    [HttpPost("multiple", Name = "AddMultipleLectures")]
+    public async Task<ActionResult<IEnumerable<LectureDTO>>> AddMultiple([FromBody] IEnumerable<LectureDTO> lectureDTOs)
+    {
+        _logger.LogDebug(lectureDTOs.ToString());
+        int user_id = (int)HttpContext.Items["UserId"]!;
+        string role = (string)HttpContext.Items["Role"]!;
+        IEnumerable<LectureDTO>? lecDTOs = await _lectureService.AddMultipleAsync(lectureDTOs, user_id, role);
+        if (lecDTOs == null) return NotFound("Unable to add the requested lectures.");
         return Ok(lecDTOs);
     }
 }

@@ -94,4 +94,12 @@ public class VenueRepository : IVenueRepository
         if (v == null) { return null; }
         return v;
     }
+
+    public async Task TestAddMultipleAsync()
+    {
+        IEnumerable<LectureVenue> lecVens = new List<LectureVenue>();
+        await _dbContext.LectureVenues.AddRangeAsync(lecVens);
+        await _dbContext.SaveChangesAsync();
+       
+    }
 }
