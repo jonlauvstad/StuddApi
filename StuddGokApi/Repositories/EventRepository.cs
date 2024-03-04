@@ -16,7 +16,79 @@ public class EventRepository : IEventRepository
         _dbContext = dbContext;
     }
 
-    
+    public async Task<ICollection<Event>> GetAllEventsAsync(string? type, DateTime? from, DateTime? to)
+    {
+        List<Assignment> assignments = await _dbContext.Assignments.ToListAsync();
+        List<Lecture> lectures = await _dbContext.Lectures.ToListAsync();
+        List<ExamImplementation> examImps = await _dbContext.ExamImplementations.ToListAsync();
+
+        List<Event> events = new List<Event>();
+
+        foreach (Assignment a in assignments)
+        {
+            events.Add(
+                new Event
+                {
+                    UnderlyingId = a.Id,
+                    Time = a.Deadline,
+                    Type = "Arbeidskrav",
+                    TypeEng = "Assignment",
+                    CourseImplementationId = a.CourseImplementationId,
+                    CourseImpCode = a.CourseImplementation!.Code,
+                    CourseImpName = a.CourseImplementation!.Name,
+                }
+            );
+        }
+
+        foreach (Lecture l in lectures)
+        {
+            LectureVenue? lecVen = await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.LectureId == l.Id);
+            Venue? v = lecVen == null ? null : lecVen.Venue;
+            events.Add(
+                new Event
+                {
+                    UnderlyingId = l.Id,
+                    Time = l.StartTime,
+                    Type = "Forelesning",
+                    TypeEng = "Lecture",
+                    CourseImplementationId = l.CourseImplementationId,
+                    CourseImpCode = l.CourseImplementation!.Code,
+                    CourseImpName = l.CourseImplementation!.Name,
+                    TimeEnd = l.EndTime,
+                    VenueId = v == null ? 0 : v.Id,
+                    VenueName = v == null ? string.Empty : v.Name,
+                    VenueCapacity = v == null ? 0 : v.Capacity,
+                }
+            );
+        }
+
+        foreach (ExamImplementation e in examImps)
+        {
+            Venue? v = e.Venue;
+            events.Add(
+                new Event
+                {
+                    UnderlyingId = e.Id,
+                    Time = e.StartTime,
+                    Type = "Eksamen",
+                    TypeEng = "ExamImplementation",
+                    CourseImplementationId = e.Exam!.CourseImplementationId,
+                    CourseImpCode = e.Exam!.CourseImplementation!.Code,
+                    CourseImpName = e.Exam!.CourseImplementation!.Name,
+                    TimeEnd = e.EndTime,
+                    VenueId = v == null ? 0 : v.Id,
+                    VenueName = v == null ? string.Empty : v.Name,
+                    VenueCapacity = v == null ? 0 : v.Capacity,
+                }
+            );
+        }
+        if (from != null) events = events.Where(x => x.Time >= from).ToList();
+        if (to != null) events = events.Where(x => x.Time <= to).ToList();
+        if (type != null) events = events.Where(x => x.Type == type).ToList();
+
+        return events;
+    }
+
     public async Task<ICollection<Event>> GetEventsAsync(int userId, string? type, DateTime? from, DateTime? to)
     {
         IEnumerable<StudentProgram> studProgs = await _dbContext.StudentPrograms.Where(x => x.UserId == userId).ToListAsync();
@@ -78,6 +150,8 @@ public class EventRepository : IEventRepository
 
         foreach (Lecture l in lectures)
         {
+            LectureVenue? lecVen = await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.LectureId == l.Id);
+            Venue? v = lecVen == null ? null : lecVen.Venue;
             events.Add(
                 new Event
                 {
@@ -89,6 +163,9 @@ public class EventRepository : IEventRepository
                     CourseImpCode = l.CourseImplementation!.Code,
                     CourseImpName = l.CourseImplementation!.Name,
                     TimeEnd = l.EndTime,
+                    VenueId = v == null ? 0 : v.Id,
+                    VenueName = v == null ? string.Empty : v.Name,
+                    VenueCapacity = v == null ? 0 : v.Capacity,
                 }
             );
         }

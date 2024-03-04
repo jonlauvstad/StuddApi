@@ -5,7 +5,9 @@ using StuddGokApi.DTOs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using StudentResource.Models.POCO;
 using System.Collections.Generic;
+using System.Data;
 
 namespace StuddGokApi.Controllers;
 
@@ -21,8 +23,8 @@ public class EventController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("User/{userId}", Name = "GetAllEvents")]
-    public async Task<ActionResult<IEnumerable<EventDTO>>> GetAllEvents([FromRoute] int userId, [FromQuery] string? type=null,
+    [HttpGet("User/{userId}", Name = "GetAllEventsForUser")]
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetAllEventsForUser([FromRoute] int userId, [FromQuery] string? type=null,
         [FromQuery] DateTime? from=null, [FromQuery] DateTime? to=null)
     {
         int user_id = (int)HttpContext.Items["UserId"]!;
@@ -35,5 +37,18 @@ public class EventController : ControllerBase
             return Unauthorized("Du har ikke lov til å bruke denne routen.");
         }
         return Ok(events);
+    }
+
+    [Authorize]
+    [HttpGet("Event", Name = "GetAllEvents")]
+    public async Task<ActionResult<IEnumerable<EventDTO>>> GetAllEvents([FromQuery] string? type = null,
+        [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
+    {
+        return Ok(await _eventService.GetAllEventsAsync(type, from, to));
+        //if (events == null)
+        //{
+        //    return NotFound("Du har ikke lov til å bruke denne routen.");
+        //}
+        //return Ok(events);
     }
 }
