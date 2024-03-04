@@ -16,6 +16,12 @@ public class EventService : IEventService
         _eventRepository = eventRepository;
         _eventMapper = eventMapper;
     }
+
+    public async Task<ICollection<EventDTO>> GetAllEventsAsync(string? type, DateTime? from_, DateTime? to)
+    {
+        return (from ev in await _eventRepository.GetAllEventsAsync(type, from_, to) select _eventMapper.MapToDTO(ev)).ToList();
+    }
+
     public async Task<ICollection<EventDTO>?> GetEventsAsync(int userId, string type, DateTime? from, DateTime? to, int user_id, string role)
     {
         if(userId != user_id && role != "admin")
