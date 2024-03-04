@@ -95,6 +95,7 @@ public class EventRepository : IEventRepository
 
         foreach (ExamImplementation e in examImps)
         {
+            Venue? v = e.Venue;
             events.Add(
                 new Event
                 {
@@ -106,12 +107,17 @@ public class EventRepository : IEventRepository
                     CourseImpCode = e.Exam!.CourseImplementation!.Code,
                     CourseImpName = e.Exam!.CourseImplementation!.Name,
                     TimeEnd = e.EndTime,
+                    VenueId = v==null ? 0 : v.Id,
+                    VenueName = v==null ? string.Empty : v.Name,
+                    VenueCapacity = v==null ? 0 : v.Capacity,
                 }
             );
         }
 
         foreach (Lecture l in tLectures)
         {
+            LectureVenue? lecVen = await _dbContext.LectureVenues.FirstOrDefaultAsync(x => x.LectureId == l.Id);
+            Venue? v = lecVen==null ? null : lecVen.Venue;
             events.Add(
                 new Event
                 {
@@ -122,6 +128,9 @@ public class EventRepository : IEventRepository
                     CourseImplementationId = l.CourseImplementationId,
                     CourseImpCode = l.CourseImplementation!.Code,
                     CourseImpName = l.CourseImplementation!.Name,
+                    VenueId = v == null ? 0 : v.Id,
+                    VenueName = v == null ? string.Empty : v.Name,
+                    VenueCapacity = v == null ? 0 : v.Capacity,
                 }
             );
         }

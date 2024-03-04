@@ -19,6 +19,9 @@ public class EventMapper : IMapper<Event, EventDTO>
             CourseImpName = model.CourseImpName,
             CourseImplementation = model.CourseImplementation,
             TimeEnd = model.TimeEnd,
+            VenueId = model.VenueId,
+            VenueName = model.VenueName,
+            VenueCapacity = model.VenueCapacity,
         };
     }
 
@@ -36,6 +39,9 @@ public class EventMapper : IMapper<Event, EventDTO>
             CourseImpName = dto.CourseImpName,
             CourseImplementation = dto.CourseImplementation,
             TimeEnd = dto.TimeEnd,
+            VenueId = dto.VenueId,
+            VenueName = dto.VenueName,
+            VenueCapacity = dto.VenueCapacity,
         };
     }
 }

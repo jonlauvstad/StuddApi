@@ -15,4 +15,7 @@ public class EventDTO
     public string CourseImplementationLink { get => $"/CourseImplementation/{CourseImplementationId}"; }
     public string Link { get => $"/{TypeEng}/{UnderlyingId}"; }
     public DateTime TimeEnd { get; set; }
+    public int VenueId { get; set; }
+    public string VenueName { get; set; } = string.Empty;
+    public int VenueCapacity { get; set; }
 }
