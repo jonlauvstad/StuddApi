@@ -86,7 +86,7 @@ public class EventRepository : IEventRepository
         if (to != null) events = events.Where(x => x.Time <= to).ToList();
         if (type != null) events = events.Where(x => x.Type == type).ToList();
 
-        return events;
+        return events.OrderBy(x => x.Time).ToList();
     }
 
     public async Task<ICollection<Event>> GetEventsAsync(int userId, string? type, DateTime? from, DateTime? to)
