@@ -13,5 +13,8 @@ public class Event
     public string CourseImpName { get; set; } = string.Empty;
     public CourseImplementation? CourseImplementation { get; set; }
     public DateTime TimeEnd { get; set; }
+    public int VenueId { get; set; }
+    public string VenueName { get; set; } = string.Empty;
+    public int VenueCapacity { get; set; }
 
 }
