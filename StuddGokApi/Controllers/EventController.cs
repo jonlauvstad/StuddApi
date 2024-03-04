@@ -40,7 +40,7 @@ public class EventController : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("Event", Name = "GetAllEvents")]
+    [HttpGet(Name = "GetAllEvents")]
     public async Task<ActionResult<IEnumerable<EventDTO>>> GetAllEvents([FromQuery] string? type = null,
         [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
     {
