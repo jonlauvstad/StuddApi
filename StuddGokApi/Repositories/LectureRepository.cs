@@ -7,7 +7,12 @@ using StuddGokApi.DTMs;
 using StuddGokApi.DTOs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
+using StuddGokApi.Services;
+using StudentResource.Models.POCO;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Transactions;
 
 namespace StuddGokApi.Repositories;
@@ -33,18 +38,50 @@ public class LectureRepository : ILectureRepository
         return lecture;
     }
 
-    
-    public async Task<IEnumerable<User>> GetTeachersByCourseImplementationId(int courseImpId)
+    public async Task<IEnumerable<int>> GetUserIdsByCourseImplementationId(int courseImpId)
+    {
+        List<int> userIds = (await GetStudentIdsByCourseImplementationId(courseImpId)).ToList();
+        userIds.AddRange((await GetTeacherIdsByCourseImplementationId(courseImpId)).ToList());
+        userIds.AddRange((await GetProgramTeacherIdsByCourseImplementationId(courseImpId)).ToList());
+        return userIds;
+    }
+    public async Task<IEnumerable<Models.User>> GetStudentsByCourseImplementationId(int courseImpId)
+    {
+        IEnumerable<ProgramCourse> pcs = await _dbContext.ProgramCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
+        IEnumerable<int> progImpIds = from pc in pcs select pc.ProgramImplementationId;
+        IEnumerable<StudentProgram> sps = await _dbContext.StudentPrograms.Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
+        return from sp in sps select sp.User;
+    }
+    public async Task<IEnumerable<int>> GetStudentIdsByCourseImplementationId(int courseImpId)
+    {
+        IEnumerable<ProgramCourse> pcs = await _dbContext.ProgramCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
+        IEnumerable<int> progImpIds = from pc in pcs select pc.ProgramImplementationId;
+        IEnumerable<StudentProgram> sps = await _dbContext.StudentPrograms.Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
+        return from sp in sps select sp.UserId;
+    }
+    public async Task<IEnumerable<Models.User>> GetTeachersByCourseImplementationId(int courseImpId)
     {
         IEnumerable<TeacherCourse> tcs =  await _dbContext.TeacherCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
         return from tc in tcs select tc.User;
     }
-    public async Task<IEnumerable<User>> GetProgramTeachersByCourseImplementationId(int courseImpId)
+    public async Task<IEnumerable<int>> GetTeacherIdsByCourseImplementationId(int courseImpId)
+    {
+        IEnumerable<TeacherCourse> tcs = await _dbContext.TeacherCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
+        return from tc in tcs select tc.UserId;
+    }
+    public async Task<IEnumerable<Models.User>> GetProgramTeachersByCourseImplementationId(int courseImpId)
     {
         IEnumerable<ProgramCourse> pcs = await _dbContext.ProgramCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
         IEnumerable<int> progImpIds = from pc in pcs select pc.ProgramImplementationId;
         IEnumerable<TeacherProgram> tps = await _dbContext.TeacherPrograms.Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
         return from tp in tps select tp.User;
+    }
+    public async Task<IEnumerable<int>> GetProgramTeacherIdsByCourseImplementationId(int courseImpId)
+    {
+        IEnumerable<ProgramCourse> pcs = await _dbContext.ProgramCourses.Where(x => x.CourseImplementationId == courseImpId).ToListAsync();
+        IEnumerable<int> progImpIds = from pc in pcs select pc.ProgramImplementationId;
+        IEnumerable<TeacherProgram> tps = await _dbContext.TeacherPrograms.Where(x => progImpIds.Contains(x.ProgramImplementationId)).ToListAsync();
+        return from tp in tps select tp.UserId;
     }
     public async Task<Lecture?> CheckTeacher(int courseImpId, DateTime from, DateTime to)
     {
@@ -69,7 +106,15 @@ public class LectureRepository : ILectureRepository
         EntityEntry e = await _dbContext.Lectures.AddAsync(lecture);
         await _dbContext.SaveChangesAsync();
         object o = e.Entity;
-        if (o is Lecture) { return (Lecture)o; }
+        if (o is Lecture) 
+        {
+            // NEW: Adding alerts to db
+            await AddAlertsAsync(
+                (from userId in await GetUserIdsByCourseImplementationId(((Lecture)o).CourseImplementationId)
+                 select AlertFromLecture((Lecture)o, userId, LectureAction.added)).ToList());
+
+            return (Lecture)o; 
+        }
         return null;
 
     }
@@ -100,6 +145,11 @@ public class LectureRepository : ILectureRepository
                     EntityEntry ev = await _dbContext.LectureVenues.AddAsync(lv);
                     await _dbContext.SaveChangesAsync();
                     lec_ven = lv;
+
+                    // NEW: Adding alerts to db
+                    await AddAlertsAsync(
+                        (from userId in await GetUserIdsByCourseImplementationId(l.CourseImplementationId)
+                         select AlertFromLecture(l, userId, LectureAction.added)).ToList());
 
                     transaction.Commit();
                 }
@@ -143,6 +193,11 @@ public class LectureRepository : ILectureRepository
                             lec_list[i].LectureVenues.Add(lecVen);
                         }
                     }
+
+                    // NEW: Adding alerts
+                    List<Alert> alerts = await AlertsFromMultipleLecturesAsync(lec_list, LectureAction.added);
+                    await AddAlertsAsync(alerts);
+
                     transaction.Commit();
                     returnLectures = lec_list;
                 }
@@ -214,6 +269,11 @@ public class LectureRepository : ILectureRepository
                     await _dbContext.SaveChangesAsync();
                     l = lec;
 
+                    // NEW: Adding alerts to db
+                    await AddAlertsAsync(
+                        (from userId in await GetUserIdsByCourseImplementationId(lec.CourseImplementationId)
+                         select AlertFromLecture(lec, userId, LectureAction.updated)).ToList());
+
                     transaction.Commit();
                 }
                 catch
@@ -245,6 +305,12 @@ public class LectureRepository : ILectureRepository
         lec.EndTime = lecture.EndTime;
 
         await _dbContext.SaveChangesAsync();
+
+        // NEW: Sending alerts
+        await AddAlertsAsync(
+            (from userId in await GetUserIdsByCourseImplementationId(lecture.CourseImplementationId)
+            select AlertFromLecture(lecture, userId, LectureAction.updated)).ToList());
+
         return lec;
     }
 
@@ -255,14 +321,21 @@ public class LectureRepository : ILectureRepository
         {
             return null;
         }
+
+        // NEW: Find all users and create alerts for them all - wait until successfully deleted lecture before inserting into db
+        IEnumerable<int> userIds = await GetUserIdsByCourseImplementationId(lecture.CourseImplementationId);
+        List<Alert> alerts = new List<Alert>();
+        foreach(int userId in userIds) { alerts.Add(AlertFromLecture(lecture, userId, LectureAction.deleted)); }
+
         int numDeleted = await _dbContext.Lectures.Where(x => x.Id == id).ExecuteDeleteAsync();
         if (numDeleted == 0)
         {
             return null;
         }
 
-        //if (lecture != null) lecture.LectureVenues = await _dbContext.LectureVenues.Where(x => x.LectureId == id).ToListAsync();
-      
+        // NEW: Inserting the alerts into the database
+        await AddAlertsAsync(alerts);
+
         return lecture;
     }
 
@@ -324,9 +397,15 @@ public class LectureRepository : ILectureRepository
                 {
                     deletedLectures = await _dbContext.Lectures.Where(x => ids.Contains(x.Id)).ToListAsync();
 
+                    // NEW ALERTS!!
+                    List<Alert> alerts = await AlertsFromMultipleLecturesAsync(deletedLectures, LectureAction.deleted);
+
                     int numDeleted = await _dbContext.Lectures.Where(x => ids.Contains(x.Id)).ExecuteDeleteAsync();
                     await _dbContext.SaveChangesAsync();
                     if (numDeleted != numLectures) { throw new Exception(); }
+
+                    // NEW: ALERTS!!
+                    await AddAlertsAsync(alerts); 
 
                     transaction.Commit();
                 }
@@ -354,5 +433,92 @@ public class LectureRepository : ILectureRepository
         return courseImpIdsT;
     }
 
+    private async Task<Alert> AddAlertAsync(Alert alert)
+    {
+        await _dbContext.Alerts.AddAsync(alert);
+        await _dbContext.SaveChangesAsync();
+        return alert;
+    }
+    private async Task AddAlertsAsync(IEnumerable<Alert> alerts)
+    {
+        await _dbContext.Alerts.AddRangeAsync(alerts);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private Alert AlertFromLecture(Lecture lecture, int userId, LectureAction action)
+    {
+        string actionString = MatchAction(action);
+        return new Alert
+        {
+            UserId = userId,
+            Time = DateTime.Now,
+            Seen = false,
+            Message = $"Forelesning i {lecture.CourseImplementation!.Name} har blitt {actionString}. Link: /Lecture/{lecture.Id}"
+        };
+    }
+
+    private async Task<List<Alert>> AlertsFromMultipleLecturesAsync(IEnumerable<Lecture> lectures, LectureAction action) 
+    {
+        // Get users and also make list of lectureAndItsUsers                                                               
+        List<int> listOfUserIds = new List<int>();                                                                        // listOfUserIds
+        List<(Lecture lec, IEnumerable<int> userIds)> lecs_userIds = new List<(Lecture lec, IEnumerable<int> userIds)>(); // (lecture, userIds)
+        foreach (Lecture lecture in lectures)
+        {
+            IEnumerable<int> userIds = await GetUserIdsByCourseImplementationId(lecture.CourseImplementationId);
+            lecs_userIds.Add((lecture, userIds));
+            listOfUserIds.AddRange(userIds.Where(x => !listOfUserIds.Contains(x)));
+        };
+
+        // Make individual alert for each user
+        List<Alert> alerts = new List<Alert>();
+        foreach(int uId in listOfUserIds) alerts.Add(OneAlertFromMultipleLectures(lecs_userIds, uId, action));
+        return alerts;
+        
+    }
+    private Alert OneAlertFromMultipleLectures(List<(Lecture lec, IEnumerable<int> userIds)> lecs_userIds, int userId, LectureAction action)
+    {
+        List<Lecture> lecs = (from luid in lecs_userIds where luid.userIds.Contains(userId) select luid.lec).ToList();
+        List<string> courseImpNames = (from lec in lecs select lec.CourseImplementation!.Name).Distinct().ToList();
+
+        StringBuilder sb = new StringBuilder();
+        int l = courseImpNames.Count();
+        for (int i = 0; i < l; i++)
+        {
+            sb.Append(courseImpNames[i]);
+            if (i < l - 2) sb.Append(", ");
+            else if (i == l - 2) sb.Append(" og ");
+        }
+        string courseImpString = sb.ToString();
+
+        string actionString = MatchAction(action);
+
+        return new Alert
+        {
+            UserId = userId,
+            Time = DateTime.Now,
+            Seen = false,
+            Message = $"Forelesninger i {courseImpString} har blitt {actionString}. Antall påvirkede forelesninger: {lecs.Count}. " +
+                $"Sjekk kalenderen!"
+        };
+
+    }
+
+    private string MatchAction(LectureAction action)
+    {
+        string actionString = "lagt til";
+        switch (action)
+        {
+            case LectureAction.updated:
+                actionString = "endret";
+                break;
+            case LectureAction.deleted:
+                actionString = "slettet";
+                break;
+        }
+        return actionString;
+    }
+
     
 }
+
+enum LectureAction { added, updated, deleted }

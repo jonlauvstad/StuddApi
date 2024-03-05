@@ -7,8 +7,13 @@ namespace StuddGokApi.Repositories.Interfaces;
 public interface ILectureRepository
 {
     Task<Lecture?> GetLectureById(int id);
+    Task<IEnumerable<int>> GetUserIdsByCourseImplementationId(int courseImpId);
     Task<IEnumerable<User>> GetTeachersByCourseImplementationId(int courseImpId);
+    Task<IEnumerable<int>> GetTeacherIdsByCourseImplementationId(int courseImpId);
     Task<IEnumerable<User>> GetProgramTeachersByCourseImplementationId(int courseImpId);
+    Task<IEnumerable<int>> GetProgramTeacherIdsByCourseImplementationId(int courseImpId);
+    Task<IEnumerable<User>> GetStudentsByCourseImplementationId(int courseImpId);
+    Task<IEnumerable<int>> GetStudentIdsByCourseImplementationId(int courseImpId);
     Task<Lecture?> AddLectureAsync(Lecture lecture);
     Task<(Lecture?, LectureVenue?)> AddLectureAndVenueAsync(Lecture lecture, int venueId);
     Task<Lecture?> CheckTeacher(int courseImpId, DateTime from, DateTime to);

@@ -10,6 +10,7 @@ public class StuddGokDbContext : DbContext
     {
     }
 
+    public DbSet<Alert> Alerts { get; set; }
     public DbSet<Assignment> Assignments { get; set; }
     public DbSet<AssignmentResult> AssignmentResults { get; set; }
     public DbSet<Attendance> Attendances { get; set; }
