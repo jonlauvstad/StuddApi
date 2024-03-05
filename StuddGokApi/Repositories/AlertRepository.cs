@@ -22,7 +22,7 @@ public class AlertRepository : IAlertRepository
 
     public async Task<IEnumerable<Alert>?> UpdateAlertsByAlertIdsAsync(IEnumerable<int> alertIds)
     {
-        IEnumerable<Alert> alerts = await _dbContext.Alerts.Where(x => alertIds.Contains(x.Id)).ToListAsync();
+        IEnumerable<Alert>? alerts = await _dbContext.Alerts.Where(x => alertIds.Contains(x.Id)).ToListAsync();
 
         var strategy = _dbContext.Database.CreateExecutionStrategy();
         await strategy.ExecuteAsync(async () =>
