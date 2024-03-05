@@ -50,7 +50,9 @@ builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IVenueRepository, VenueRepository>();
 builder.Services.AddScoped<IVenueService, VenueService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
-builder.Services.AddScoped<IUserService, UserService>();  
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAlertRepository, AlertRepository>();
+builder.Services.AddScoped<IAlertService, AlertService>();
 
 builder.Services.AddScoped<UserIdentifier>();
 
