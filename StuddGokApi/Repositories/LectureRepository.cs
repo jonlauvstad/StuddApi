@@ -379,7 +379,7 @@ public class LectureRepository : ILectureRepository
             IEnumerable<int> courseImpIds = await TeacherCourseImps(userId);
             if (courseImpIds.Contains(ciId)) return true;
         }
-        
+        _logger.LogDebug("IsOwner returning false");
         return false;
     }
 

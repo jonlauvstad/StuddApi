@@ -94,6 +94,7 @@ public class LectureController : ControllerBase
         int user_id = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
         IEnumerable<LectureDTO>? lecDTOs = await _lectureService.AddMultipleAsync(lectureDTOs, user_id, role);
+        _logger.LogDebug($"lecDTOs is null: {lecDTOs==null}" );
         if (lecDTOs == null) return NotFound("Unable to add the requested lectures.");
         return Ok(lecDTOs);
     }

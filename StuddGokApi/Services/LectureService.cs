@@ -71,19 +71,20 @@ public class LectureService : ILectureService
 
     public async Task<IEnumerable<LectureDTO>?> AddMultipleAsync(IEnumerable<LectureDTO> lectureDTOs, int userId, string role)
     {
+        _logger.LogDebug("AddMultipleAsync er blitt kalt.");
         // SJEKK PÅ TEACHER ER 'EIER'
         foreach (int id in from lec in lectureDTOs select lec.CourseImplementationId)
-        {
-            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
+        {                                                                                                     // SE LINJA UNDER!!  
+            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: id)) return null; //courseImplementationId: id istedet for null
         }
-
+        _logger.LogDebug("Sjekk på eier gjennomført");
         // VALIDERE DATOER/TIDER
         foreach(LectureDTO lectureDTO in lectureDTOs)
         {
             string? validated = await ValidateDates(lectureDTO);
             if (validated != null) { return null; }
         }
-
+        _logger.LogDebug("Datoer validert");
         // CHECK IF VENUE IS AVAILABLE - that is if venues selected...
         foreach (LectureDTO lecture in lectureDTOs)
         {
@@ -113,7 +114,7 @@ public class LectureService : ILectureService
         IEnumerable<Lecture>? lectures = 
             await _lectureRepository.AddMultipleAsync(from lectureDTO in lectureDTOs select _lectureMapper.MapToModel(lectureDTO),
                 from LectureDTO in lectureDTOs select LectureDTO.VenueIds);
-        if (lectures == null) return null;
+        if (lectures == null) { _logger.LogDebug($"Service: lectures==null: {lectures == null}"); return null; }
         return from lec in lectures select _lectureMapper.MapToDTO(lec);
     }
 
