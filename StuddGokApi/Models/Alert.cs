@@ -10,6 +10,7 @@ public class Alert
     [Required] public string Message { get; set; } = string.Empty;
     [Required] public DateTime Time { get; set; }
     [Required] public bool Seen { get; set; }
+    [Required] public string Links { get; set; } = string.Empty;
 
     public virtual User? User { get; set; }
 }

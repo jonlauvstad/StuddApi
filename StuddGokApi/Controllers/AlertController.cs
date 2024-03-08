@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using StuddGokApi.DTOs;
 using StuddGokApi.Services.Interfaces;
+using System.Data;
 
 namespace StuddGokApi.Controllers;
 
@@ -26,7 +27,18 @@ public class AlertController : ControllerBase
     }
 
     [Authorize]
-    [HttpPut(Name = "UpdateAlerts")]
+    [HttpPut("User", Name = "UpdateUnseenAlertsForUser")]
+    public async Task<ActionResult<IEnumerable<AlertDTO>?>> UpdateUnseenAlertsForUser()
+    {
+        int user_id = (int)HttpContext.Items["UserId"]!;
+
+        IEnumerable<AlertDTO>? alerts = await _alertService.UpdateUnseenAlertsByUserIdAsync(user_id);
+        if (alerts == null) return NotFound("Kunne ikke oppdatere varslingene.");
+        return Ok(alerts);
+    }
+
+    [Authorize]
+    [HttpPut(Name = "UpdateAlertsByAlertIds")]
     public async Task<ActionResult<IEnumerable<AlertDTO>?>> UpdateAlertsByAlertIds([FromBody] IEnumerable<int> alertIds)
     {
         int user_id = (int)HttpContext.Items["UserId"]!;

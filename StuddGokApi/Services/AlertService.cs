@@ -3,6 +3,7 @@ using StuddGokApi.Mappers;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using System.Data;
 
 namespace StuddGokApi.Services;
 
@@ -36,5 +37,13 @@ public class AlertService : IAlertService
         IEnumerable<Alert>? alerts = await _alertRepository.UpdateAlertsByAlertIdsAsync(alertIds);
         if (alerts == null) return null;
         return from alert in alerts select _alertMapper.MapToDTO(alert);
+    }
+
+    public async Task<IEnumerable<AlertDTO>?> UpdateUnseenAlertsByUserIdAsync(int userId)
+    {
+        IEnumerable<Alert>? alerts = await _alertRepository.UpdateUnseenAlertsByUserIdAsync(userId);
+        if (alerts == null) return null;
+        return from alert in alerts select _alertMapper.MapToDTO(alert);
+
     }
 }

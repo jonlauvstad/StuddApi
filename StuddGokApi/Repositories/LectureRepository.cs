@@ -8,6 +8,7 @@ using StuddGokApi.DTOs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services;
+using StuddGokApi.SSE;
 using StudentResource.Models.POCO;
 using System;
 using System.Collections.Generic;
@@ -21,11 +22,13 @@ public class LectureRepository : ILectureRepository
 {
     private readonly StuddGokDbContext _dbContext;
     private readonly ILogger<LectureRepository> _logger;
+    public AlertUserList _alertUserList;
 
-    public LectureRepository(StuddGokDbContext dbContext, ILogger<LectureRepository> logger)
+    public LectureRepository(StuddGokDbContext dbContext, ILogger<LectureRepository> logger, AlertUserList alertUserList)
     {
         _dbContext = dbContext;
         _logger = logger;
+        _alertUserList = alertUserList;
     }
     public async Task<Lecture?> GetLectureById(int id)
     {
@@ -34,7 +37,7 @@ public class LectureRepository : ILectureRepository
         Lecture? lecture = lectures.FirstOrDefault();
         if (lecture == null ) { return null; }
         lecture.LectureVenues = await _dbContext.LectureVenues.Where(x => x.LectureId == id).ToListAsync();
-
+        _alertUserList.UserIdList.Add(1);
         return lecture;
     }
 
@@ -43,7 +46,7 @@ public class LectureRepository : ILectureRepository
         List<int> userIds = (await GetStudentIdsByCourseImplementationId(courseImpId)).ToList();
         userIds.AddRange((await GetTeacherIdsByCourseImplementationId(courseImpId)).ToList());
         userIds.AddRange((await GetProgramTeacherIdsByCourseImplementationId(courseImpId)).ToList());
-        return userIds;
+        return userIds.Distinct();
     }
     public async Task<IEnumerable<Models.User>> GetStudentsByCourseImplementationId(int courseImpId)
     {
@@ -102,16 +105,19 @@ public class LectureRepository : ILectureRepository
 
     public async Task<Lecture?> AddLectureAsync(Lecture lecture)
     {
-        
         EntityEntry e = await _dbContext.Lectures.AddAsync(lecture);
         await _dbContext.SaveChangesAsync();
         object o = e.Entity;
         if (o is Lecture) 
         {
             // NEW: Adding alerts to db
+            IEnumerable<int> userIds = await GetUserIdsByCourseImplementationId(((Lecture)o).CourseImplementationId);
             await AddAlertsAsync(
-                (from userId in await GetUserIdsByCourseImplementationId(((Lecture)o).CourseImplementationId)
+                (from userId in userIds   // userIds istedetfor await GetUserIdsByCourseImplementationId(((Lecture)o).CourseImplementationId)
                  select AlertFromLecture((Lecture)o, userId, LectureAction.added)).ToList());
+
+            // FOR SSE
+            _alertUserList.UserIdList.AddRange(userIds);
 
             return (Lecture)o; 
         }
@@ -147,9 +153,13 @@ public class LectureRepository : ILectureRepository
                     lec_ven = lv;
 
                     // NEW: Adding alerts to db
+                    IEnumerable<int> userIds = await GetUserIdsByCourseImplementationId(l.CourseImplementationId);
                     await AddAlertsAsync(
-                        (from userId in await GetUserIdsByCourseImplementationId(l.CourseImplementationId)
+                        (from userId in userIds
                          select AlertFromLecture(l, userId, LectureAction.added)).ToList());
+
+                    // FOR SSE
+                    _alertUserList.UserIdList.AddRange(userIds);
 
                     transaction.Commit();
                 }
@@ -159,7 +169,7 @@ public class LectureRepository : ILectureRepository
                 }
             }
         });
-        
+
         return (l, lec_ven);        
     }
 
@@ -197,6 +207,9 @@ public class LectureRepository : ILectureRepository
                     // NEW: Adding alerts
                     List<Alert> alerts = await AlertsFromMultipleLecturesAsync(lec_list, LectureAction.added);
                     await AddAlertsAsync(alerts);
+
+                    // FOR SSE
+                    _alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);
 
                     transaction.Commit();
                     returnLectures = lec_list;
@@ -270,9 +283,13 @@ public class LectureRepository : ILectureRepository
                     l = lec;
 
                     // NEW: Adding alerts to db
+                    IEnumerable<int> userIds = await GetUserIdsByCourseImplementationId(lec.CourseImplementationId);
                     await AddAlertsAsync(
-                        (from userId in await GetUserIdsByCourseImplementationId(lec.CourseImplementationId)
+                        (from userId in userIds
                          select AlertFromLecture(lec, userId, LectureAction.updated)).ToList());
+
+                    // FOR SSE
+                    _alertUserList.UserIdList.AddRange(userIds);
 
                     transaction.Commit();
                 }
@@ -307,9 +324,13 @@ public class LectureRepository : ILectureRepository
         await _dbContext.SaveChangesAsync();
 
         // NEW: Sending alerts
+        IEnumerable<int> userIds = await GetUserIdsByCourseImplementationId(lecture.CourseImplementationId);
         await AddAlertsAsync(
-            (from userId in await GetUserIdsByCourseImplementationId(lecture.CourseImplementationId)
-            select AlertFromLecture(lecture, userId, LectureAction.updated)).ToList());
+            (from userId in userIds
+             select AlertFromLecture(lecture, userId, LectureAction.updated)).ToList());
+
+        // FOR SSE
+        _alertUserList.UserIdList.AddRange(userIds);
 
         return lec;
     }
@@ -335,6 +356,9 @@ public class LectureRepository : ILectureRepository
 
         // NEW: Inserting the alerts into the database
         await AddAlertsAsync(alerts);
+
+        // FOR SSE
+        _alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);
 
         return lecture;
     }
@@ -405,7 +429,10 @@ public class LectureRepository : ILectureRepository
                     if (numDeleted != numLectures) { throw new Exception(); }
 
                     // NEW: ALERTS!!
-                    await AddAlertsAsync(alerts); 
+                    await AddAlertsAsync(alerts);
+
+                    // FOR SSE
+                    _alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);
 
                     transaction.Commit();
                 }
@@ -429,8 +456,9 @@ public class LectureRepository : ILectureRepository
         IEnumerable<int> courseImpIdsT = from item in teachCourses select item.CourseImplementationId;
 
         IEnumerable<int> courseImpIdsP = from item in progCourses select item.CourseImplementationId;
-        courseImpIdsT.ToList().AddRange(courseImpIdsP);
-        return courseImpIdsT;
+        List<int> cimpsT = courseImpIdsT.ToList();
+        cimpsT.AddRange(courseImpIdsP);
+        return cimpsT.Distinct();
     }
 
     private async Task<Alert> AddAlertAsync(Alert alert)
@@ -453,7 +481,8 @@ public class LectureRepository : ILectureRepository
             UserId = userId,
             Time = DateTime.Now,
             Seen = false,
-            Message = $"Forelesning i {lecture.CourseImplementation!.Name} har blitt {actionString}. Link: /Lecture/{lecture.Id}"
+            Message = $"Forelesning i {lecture.CourseImplementation!.Name} har blitt {actionString}.", 
+            Links = $"/Lecture/{lecture.Id}"
         };
     }
 
@@ -492,13 +521,16 @@ public class LectureRepository : ILectureRepository
 
         string actionString = MatchAction(action);
 
+        string links = string.Join(",", from lecture in lecs select $"/Lecture/{lecture.Id}");
+
         return new Alert
         {
             UserId = userId,
             Time = DateTime.Now,
             Seen = false,
             Message = $"Forelesninger i {courseImpString} har blitt {actionString}. Antall påvirkede forelesninger: {lecs.Count}. " +
-                $"Sjekk kalenderen!"
+                $"Sjekk kalenderen!",
+            Links = links,
         };
 
     }
