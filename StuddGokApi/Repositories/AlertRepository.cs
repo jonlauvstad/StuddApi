@@ -20,6 +20,35 @@ public class AlertRepository : IAlertRepository
         return await _dbContext.Alerts.Where(x => x.UserId == userId && x.Seen == seen).ToListAsync();
     }
 
+    public async Task<IEnumerable<Alert>?> UpdateUnseenAlertsByUserIdAsync(int userId)
+    {
+        IEnumerable<Alert>? alerts = await _dbContext.Alerts.Where(x =>  userId == x.UserId && x.Seen == false).ToListAsync();
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    foreach (Alert alert in alerts)
+                    {
+                        alert.Seen = true;
+                        await _dbContext.SaveChangesAsync();
+                    }
+                    transaction.Commit();
+
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    alerts = null;
+                }
+            }
+        });
+        return alerts;
+    }
+
     public async Task<IEnumerable<Alert>?> UpdateAlertsByAlertIdsAsync(IEnumerable<int> alertIds)
     {
         IEnumerable<Alert>? alerts = await _dbContext.Alerts.Where(x => alertIds.Contains(x.Id)).ToListAsync();
