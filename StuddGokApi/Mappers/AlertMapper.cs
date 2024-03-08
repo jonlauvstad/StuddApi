@@ -15,7 +15,8 @@ public class AlertMapper : IMapper<Alert, AlertDTO>
             UserId = model.UserId,
             Message = model.Message,
             Time = model.Time,
-            Seen = model.Seen
+            Seen = model.Seen,
+            Links = model.Links
         };
     }
 
@@ -27,7 +28,8 @@ public class AlertMapper : IMapper<Alert, AlertDTO>
             UserId = dto.UserId,
             Message = dto.Message,
             Time = dto.Time,
-            Seen = dto.Seen
+            Seen = dto.Seen,
+            Links= dto.Links
         };
     }
 }

@@ -10,6 +10,7 @@ public class AlertDTO
     public string Message { get; set; } = string.Empty;
     public DateTime Time { get; set; }
     public bool Seen { get; set; }
+    public string Links { get; set; } = string.Empty;
 
     //public virtual User? User { get; set; }
 }

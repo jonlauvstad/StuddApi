@@ -18,6 +18,8 @@ using Serilog;
 
 using StuddGokApi.Models;
 using Serilog;
+using StuddGokApi.SSE;
+using StuddGokApi.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,25 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+
+// FOR Å TILLATE CORS: For å få fetchene i JS'n i HTML-fila til å funke når kjøres på egen maskin
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:7042", "http://localhost:5170")
+                                .AllowAnyHeader()
+                                .AllowAnyMethod();
+        });
+});
+
+// Configure Kestrel options -- SPØRRE YNGVE: NOEN MÅTE Å UNNGÅ DENNE PÅ I ServerSideEventController??!!
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.AllowSynchronousIO = true;
+});
 
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();                // Registrerer validator
 builder.Services.AddFluentValidationAutoValidation(config => config.DisableDataAnnotationsValidation = false); //Også validering(default)
@@ -53,6 +74,8 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAlertRepository, AlertRepository>();
 builder.Services.AddScoped<IAlertService, AlertService>();
+builder.Services.AddSingleton<AlertUserList>();
+
 
 builder.Services.AddScoped<UserIdentifier>();
 
@@ -63,9 +86,6 @@ builder.Services.AddDbContext<StuddGokDbContext>(options =>
         new MySqlServerVersion(new Version(8, 0, 21))));
 
 builder.RegisterMappers();
-
-
-
 
 // To jwt-token
 // Configure JWT authentication
@@ -96,6 +116,17 @@ builder.Host.UseSerilog((context, configuration) =>
 
 var app = builder.Build();
 
+ 
+// KNYTTET TIL CORS: For å få fetchene i JS'n i HTML-fila til å funke når kjøres på egen maskin
+app.UseCors(builder =>
+{
+    builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader();
+});
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -110,6 +141,8 @@ app.UseMiddleware<UserIdentifier>();
 app.UseAuthorization();
 
 app.MapControllers();
+
+//app.UseCors();  // Lagt til for ServerSideEvent fra egen maskin
 
 app.Run();
 
