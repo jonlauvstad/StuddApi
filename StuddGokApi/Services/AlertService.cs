@@ -24,6 +24,14 @@ public class AlertService : IAlertService
         return from alert in await _alertRepository.GetAlertsByUserIdAsync(userId, seen) select _alertMapper.MapToDTO(alert);
     }
 
+    public async Task<AlertDTO?> UpdateAlertByIdAsync(int id, int user_id)
+    {
+        if (!await _alertRepository.IsOwner(user_id, id)) return null;
+        Alert? alert = await _alertRepository.UpdateAlertByIdAsync(id);
+        if (alert == null) return null;
+        return _alertMapper.MapToDTO(alert);
+    }
+
     public async Task<IEnumerable<AlertDTO>?> UpdateAlertsByAlertIdsAsync(IEnumerable<int> alertIds, int userId, string role)
     {
         if (role != "admin")
