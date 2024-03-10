@@ -82,4 +82,13 @@ public class AlertRepository : IAlertRepository
     {
         return  (await _dbContext.Alerts.Where(x => x.UserId == userId && x.Id == alertId).ToListAsync()).Count() > 0;
     }
+
+    public async Task<Alert?> UpdateAlertByIdAsync(int id)
+    {
+        Alert? alert = await _dbContext.Alerts.FirstOrDefaultAsync(x => x.Id == id);
+        if (alert == null) return null;
+        alert.Seen = true;
+        await _dbContext.SaveChangesAsync();
+        return alert;
+    }
 }
