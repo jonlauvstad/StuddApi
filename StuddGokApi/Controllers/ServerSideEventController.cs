@@ -35,8 +35,8 @@ public class ServerSideEventController : ControllerBase
     public async Task RegisterForSSE([FromRoute] int userId, CancellationToken cancellationToken)
     {
         Response.Headers.Add("Content-Type", "text/event-stream");
-        ClientConnection clientConnection = new ClientConnection(userId, new StreamWriter(Response.Body));
-        _alertUserList.ConnectionList.Add(clientConnection);
+        //ClientConnection clientConnection = new ClientConnection(userId, new StreamWriter(Response.Body));
+        //_alertUserList.ConnectionList.Add(clientConnection);
 
         try
         {
@@ -49,7 +49,8 @@ public class ServerSideEventController : ControllerBase
                         Encoding.UTF8.GetBytes($"data: {data}"),
                         cancellationToken);
                     await Response.Body.FlushAsync();
-                   _alertUserList.UserIdList.Remove(userId);
+                    //_alertUserList.UserIdList.Remove(userId);
+                    _alertUserList.RemoveValueFromUserIdList(userId);
                 }
                 await Task.Delay(1000, cancellationToken);
             }

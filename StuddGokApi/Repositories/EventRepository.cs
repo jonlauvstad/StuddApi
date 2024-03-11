@@ -124,7 +124,7 @@ public class EventRepository : IEventRepository
             if (uei.UserId == userId) { examImps.Add(uei.ExamImplementation!); }
         }
 
-        IEnumerable<TeacherCourse> teacherCourses = await _dbContext.TeacherCourses.Where(x => x.UserId != userId).ToListAsync();
+        IEnumerable<TeacherCourse> teacherCourses = await _dbContext.TeacherCourses.Where(x => x.UserId == userId).ToListAsync();   // !=
         IEnumerable<CourseImplementation> tCourseImps = from item in teacherCourses select item.CourseImplementation;
         List<Lecture> tLectures = new List<Lecture>();
         foreach (CourseImplementation cs in tCourseImps) { tLectures.AddRange(cs.Lectures); }
