@@ -3,6 +3,7 @@ using StuddGokApi.Mappers;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using StuddGokApi.SSE;
 using System.Data;
 
 namespace StuddGokApi.Services;
@@ -11,16 +12,22 @@ public class AlertService : IAlertService
 {
     private readonly IAlertRepository _alertRepository;
     private readonly IMapper<Alert, AlertDTO> _alertMapper;
+    private AlertUserList _alertUserList;
     private readonly ILogger<AlertService> _logger; 
 
-    public AlertService(IAlertRepository alertRepository, IMapper<Alert, AlertDTO> alertMapper, ILogger<AlertService> logger)
+    public AlertService(IAlertRepository alertRepository, IMapper<Alert, AlertDTO> alertMapper, AlertUserList alertUserList,
+        ILogger<AlertService> logger)
     {
         _alertRepository = alertRepository;
         _alertMapper = alertMapper;
+        _alertUserList = alertUserList;
         _logger = logger;
     }
     public async Task<IEnumerable<AlertDTO>> GetAlertsByUserIdAsync(int userId, bool seen)
     {
+        _logger.LogDebug("GETTING IT");
+        _alertUserList.RemoveValueFromUserIdList(userId, all:true);
+        _logger.LogDebug($"REMOVED {userId}");
         return from alert in await _alertRepository.GetAlertsByUserIdAsync(userId, seen) select _alertMapper.MapToDTO(alert);
     }
 

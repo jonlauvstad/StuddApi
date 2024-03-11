@@ -11,6 +11,7 @@ using StuddGokApi.Services;
 using StuddGokApi.SSE;
 using StudentResource.Models.POCO;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -117,7 +118,8 @@ public class LectureRepository : ILectureRepository
                  select AlertFromLecture((Lecture)o, userId, LectureAction.added)).ToList());
 
             // FOR SSE
-            _alertUserList.UserIdList.AddRange(userIds);
+            //_alertUserList.UserIdList.AddRange(userIds);    => from List to ConcurrentBag
+            foreach(int userId in userIds) { _alertUserList.UserIdList.Add(userId); }                                                        
 
             return (Lecture)o; 
         }
@@ -159,7 +161,8 @@ public class LectureRepository : ILectureRepository
                          select AlertFromLecture(l, userId, LectureAction.added)).ToList());
 
                     // FOR SSE
-                    _alertUserList.UserIdList.AddRange(userIds);
+                    //_alertUserList.UserIdList.AddRange(userIds);    => from List to ConcurrentBag
+                    foreach (int userId in userIds) { _alertUserList.UserIdList.Add(userId); }
 
                     transaction.Commit();
                 }
@@ -209,7 +212,8 @@ public class LectureRepository : ILectureRepository
                     await AddAlertsAsync(alerts);
 
                     // FOR SSE
-                    _alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);
+                    //_alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);    => from List to ConcurrentBag
+                    foreach (int userId in from alert in alerts select alert.UserId) { _alertUserList.UserIdList.Add(userId); }
 
                     transaction.Commit();
                     returnLectures = lec_list;
@@ -289,7 +293,8 @@ public class LectureRepository : ILectureRepository
                          select AlertFromLecture(lec, userId, LectureAction.updated)).ToList());
 
                     // FOR SSE
-                    _alertUserList.UserIdList.AddRange(userIds);
+                    //_alertUserList.UserIdList.AddRange(userIds);    => from List to ConcurrentBag
+                    foreach (int userId in userIds) { _alertUserList.UserIdList.Add(userId); }
 
                     transaction.Commit();
                 }
@@ -330,7 +335,8 @@ public class LectureRepository : ILectureRepository
              select AlertFromLecture(lecture, userId, LectureAction.updated)).ToList());
 
         // FOR SSE
-        _alertUserList.UserIdList.AddRange(userIds);
+        //_alertUserList.UserIdList.AddRange(userIds);    => from List to ConcurrentBag
+        foreach (int userId in userIds) { _alertUserList.UserIdList.Add(userId); }
 
         return lec;
     }
@@ -358,7 +364,8 @@ public class LectureRepository : ILectureRepository
         await AddAlertsAsync(alerts);
 
         // FOR SSE
-        _alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);
+        //_alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);    => from List to ConcurrentBag
+        foreach (int userId in from alert in alerts select alert.UserId) { _alertUserList.UserIdList.Add(userId); }
 
         return lecture;
     }
@@ -432,7 +439,8 @@ public class LectureRepository : ILectureRepository
                     await AddAlertsAsync(alerts);
 
                     // FOR SSE
-                    _alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);
+                    //_alertUserList.UserIdList.AddRange(from alert in alerts select alert.UserId);    => from List to ConcurrentBag
+                    foreach (int userId in from alert in alerts select alert.UserId) { _alertUserList.UserIdList.Add(userId); }
 
                     transaction.Commit();
                 }
