@@ -15,6 +15,7 @@ public class AssignmentMapper : IMapper<Assignment, AssignmentDTO>
             Name = model.Name,
             Description = model.Description,
             Deadline = model.Deadline,
+            Mandatory = model.Mandatory,
 
             AssignmentResults = model.AssignmentResults,
         };
@@ -35,6 +36,7 @@ public class AssignmentMapper : IMapper<Assignment, AssignmentDTO>
             Name = dto.Name,
             Description = dto.Description,
             Deadline = dto.Deadline,
+            Mandatory = dto.Mandatory,
         };
     }
 }
