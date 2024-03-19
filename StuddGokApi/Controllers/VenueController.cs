@@ -25,4 +25,17 @@ public class VenueController : ControllerBase
         return Ok(venues);
     }
 
+    [Authorize]
+    [HttpGet("{id}", Name = "GetVenueById")]
+    public async Task<ActionResult<VenueDTO>> GetVenueById(int id)
+    {
+        var venue = await _venueService.GetVenueByIdAsync(id);
+        if (venue == null)
+        {
+            return NotFound();
+        }
+        return Ok(venue);
+    }
+
+
 }
