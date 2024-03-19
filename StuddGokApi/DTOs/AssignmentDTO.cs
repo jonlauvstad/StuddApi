@@ -11,6 +11,7 @@ public class AssignmentDTO
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public DateTime Deadline { get; set; }
+    public bool Mandatory { get; set; }
 
     public ICollection<AssignmentResult> AssignmentResults { get; set; } = new List<AssignmentResult>();
     //public CourseImplementation? CourseImplementation { get; set; }   Removed pga cycle in serialization
