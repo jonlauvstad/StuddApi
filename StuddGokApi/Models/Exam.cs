@@ -12,6 +12,7 @@ public class Exam
     [Required] public DateTime PeriodStart { get; set; }
     [Required] public DateTime PeriodEnd { get; set; }
 
+    // Forgot s at the end
     public virtual ICollection<ExamImplementation> ExamImplementation { get; set; } = new HashSet<ExamImplementation>();
     public virtual ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
     public virtual CourseImplementation? CourseImplementation { get; set; }
