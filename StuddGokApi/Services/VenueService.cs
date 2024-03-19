@@ -23,4 +23,10 @@ public class VenueService : IVenueService
         IEnumerable<Venue> venues = await _venueRepository.GetAllVenuesAsync(availableFromTo);
         return from venue in venues select _venueMapper.MapToDTO(venue);
     }
+
+    public async Task<VenueDTO?> GetVenueByIdAsync(int id)
+    {
+        var venue = await _venueRepository.GetVenueByIdAsync(id);
+        return venue is null ? null : _venueMapper.MapToDTO(venue);
+    }
 }
