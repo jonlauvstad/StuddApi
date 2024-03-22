@@ -44,7 +44,10 @@ public class ExamRepository : RepositoryBase, IExamRepository
 
     public async Task<IEnumerable<Exam>> GetAllExamsAsync(int? courseImplementationId)
     {
-        return await _dbContext.Exams.Where(x => x.CourseImplementationId == courseImplementationId).ToListAsync();
+        if (courseImplementationId != null)
+            return await _dbContext.Exams.Where(x => x.CourseImplementationId == courseImplementationId).ToListAsync();
+        else
+            return await _dbContext.Exams.ToListAsync();
     }
 
     public async Task<Exam?> GetExamAsync(int id)
@@ -75,10 +78,10 @@ public class ExamRepository : RepositoryBase, IExamRepository
         ex.CourseImplementationId = exam.CourseImplementationId;
         ex.Category = exam.Category;
         ex.DurationHours = exam.DurationHours;
-        ex.PeriodEnd = exam.PeriodStart;
+        ex.PeriodStart = exam.PeriodStart;
         ex.PeriodEnd = exam.PeriodEnd;
 
         await _dbContext.SaveChangesAsync();
-        return exam;
+        return ex; //exam;
     }
 }
