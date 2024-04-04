@@ -28,4 +28,16 @@ public class AssignmentController : ControllerBase
         }
         return Ok(assignment);
     }
+
+    [Authorize]
+    [HttpPost(Name = "AddAssignment")]
+    public async Task<ActionResult<AssignmentDTO>> AddAssignment([FromBody] AssignmentDTO assignmentDTO)
+    {
+        AssignmentDTO? assignment = await _assignmentService.AddAssignmentAsync(assignmentDTO);
+        if (assignment == null)
+        {
+            return BadRequest("Vi kunne dessverre ikke legge til nytt arbeidskrav.");
+        }
+        return Ok(assignment);
+    }
 }
