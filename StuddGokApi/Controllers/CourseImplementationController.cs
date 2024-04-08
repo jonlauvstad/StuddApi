@@ -28,4 +28,18 @@ public class CourseImplementationController : ControllerBase
         IEnumerable<CourseImplementationDTO> ciDTOs = await _cimpService.GetCourseImpsAsync(startDate, endDate, user:user);
         return Ok(ciDTOs);
     }
+
+    [Authorize(Roles = "admin, teacher")]
+    [HttpGet("Qualified/{courseImpId}", Name = "GetQualifiedStudentIds")]
+    public async Task<ActionResult<IEnumerable<int>>> GetQualifiedStudentIds([FromRoute] int courseImpId)
+    {
+        return Ok(await _cimpService.GetQualifiedStudentIdsAsync(courseImpId));
+    }
+
+    [Authorize(Roles = "admin, teacher")]
+    [HttpGet("QualifiedObject/{courseImpId}", Name = "GetQualifiedStudentObjects")]
+    public async Task<ActionResult<IEnumerable<UserDTO>>> GetQualifiedStudentObjects([FromRoute] int courseImpId)
+    {
+        return Ok(await _cimpService.GetQualifiedStudentObjectsAsync(courseImpId));
+    }
 }

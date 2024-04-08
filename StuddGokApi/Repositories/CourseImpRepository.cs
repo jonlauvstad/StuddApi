@@ -70,4 +70,29 @@ public class CourseImpRepository : ICourseImpRepository
         IEnumerable<int> courseImpIdsP = from item in progCourses select item.CourseImplementationId;
         return cimps.Where(x => courseImpIdsT.Contains(x.Id) || courseImpIdsP.Contains(x.Id));
     }
+
+    public async Task<IEnumerable<int>> GetQualifiedStudentIdsAsync(int courseImpId)
+    {
+        // Getting all student(id)s following courseImp (via program)
+        IEnumerable<int> progImpIds = await _dbContext.ProgramCourses.Where(x => x.CourseImplementationId == courseImpId)
+                                            .Select(x => x.ProgramImplementationId).ToListAsync();
+        IEnumerable<int> studentIds = await _dbContext.StudentPrograms.Where(x => progImpIds.Contains(x.ProgramImplementationId))
+                                            .Select(x => x.UserId).ToListAsync();
+        
+        // Getting all student(id)s who has received "ikke godkjent" on Assignment
+        IEnumerable<int> assignmentIds = await _dbContext.Assignments.Where(x => x.CourseImplementationId != courseImpId)
+                                            .Select(x => x.Id).ToListAsync();
+        IEnumerable<int> failedStudents = await _dbContext.AssignmentResults
+                                            .Where(x => assignmentIds.Contains(x.AssignmentId) && x.Grade == "ikke godkjent")
+                                            .Select(x => x.UserId).ToListAsync();
+
+        // Returning the students that have not failed
+        return studentIds.Where(x => !failedStudents.Contains(x));
+    }
+
+    public async Task<IEnumerable<User>> GetQualifiedStudentObjectsAsync(int courseImpId)
+    {
+        IEnumerable<int> qualifiedStudents = await GetQualifiedStudentIdsAsync(courseImpId);
+        return await _dbContext.Users.Where(x => qualifiedStudents.Contains(x.Id)).ToListAsync();
+    }
 }

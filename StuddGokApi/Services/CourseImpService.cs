@@ -11,11 +11,14 @@ public class CourseImpService : ICourseImpService
 {
     private readonly ICourseImpRepository _cimpRepo;
     private readonly IMapper<CourseImplementation, CourseImplementationDTO> _cimpMapper;
+    private readonly IMapper<User, UserDTO> _userMapper;
 
-    public CourseImpService(ICourseImpRepository cimpRepo, IMapper<CourseImplementation, CourseImplementationDTO> cimpMapper)
+    public CourseImpService(ICourseImpRepository cimpRepo, IMapper<CourseImplementation, CourseImplementationDTO> cimpMapper,
+        IMapper<User, UserDTO> userMapper)
     {
         _cimpRepo = cimpRepo;
         _cimpMapper = cimpMapper;
+        _userMapper = userMapper;
     }
 
     public async Task<IEnumerable<CourseImplementationDTO>> GetCourseImpsAsync(DateTime? startDate, DateTime? endDate, 
@@ -30,5 +33,16 @@ public class CourseImpService : ICourseImpService
         CourseImplementation? ci = await _cimpRepo.GetCourseImpByIdAsync(id);
         if (ci == null) { return null; }
         return _cimpMapper.MapToDTO(ci);
+    }
+
+    public async Task<IEnumerable<int>> GetQualifiedStudentIdsAsync(int courseImpId)
+    {
+        return await _cimpRepo.GetQualifiedStudentIdsAsync(courseImpId);
+    }
+
+    public async Task<IEnumerable<UserDTO>> GetQualifiedStudentObjectsAsync(int courseImpId)
+    {
+        IEnumerable<User> qStudents = await _cimpRepo.GetQualifiedStudentObjectsAsync(courseImpId);
+        return qStudents.Select(x => _userMapper.MapToDTO(x));
     }
 }
