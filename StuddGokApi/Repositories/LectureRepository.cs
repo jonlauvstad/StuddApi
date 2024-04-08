@@ -506,7 +506,7 @@ public class LectureRepository : ILectureRepository
             listOfUserIds.AddRange(userIds.Where(x => !listOfUserIds.Contains(x)));
         };
 
-        // Make individual alert for each user
+        // Make individual alert for each userS
         List<Alert> alerts = new List<Alert>();
         foreach(int uId in listOfUserIds) alerts.Add(OneAlertFromMultipleLectures(lecs_userIds, uId, action));
         return alerts;

@@ -8,5 +8,5 @@ public interface IExamService
     Task<ExamDTO?> UpdateExamAsync(int id, ExamDTO examDTO, int userId, string role); 
     Task<ExamDTO?> DeleteExamAsync(int id, int userId, string role);
     Task<ExamDTO?> GetExamAsync(int id);
-    Task<IEnumerable<ExamDTO>> GetAllExamsAsync(int? courseImplementationId);
+    Task<IEnumerable<ExamDTO>> GetAllExamsAsync(int? courseImplementationId, int? userId, string? role);
 }

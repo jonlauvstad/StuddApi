@@ -5,6 +5,7 @@ using StuddGokApi.DTMs;
 using StuddGokApi.DTOs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
+using StuddGokApi.SSE;
 using System.Reflection.Metadata.Ecma335;
 
 namespace StuddGokApi.Repositories;
@@ -14,7 +15,8 @@ public class ExamRepository : RepositoryBase, IExamRepository
     //private readonly StuddGokDbContext _dbContext;
     //private readonly ILogger<ExamRepository> _logger;
 
-    public ExamRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger) : base(dbContext, logger)
+    public ExamRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger, AlertUserList alertUserList)
+        : base(dbContext, logger, alertUserList)
     {
     }
 
@@ -42,12 +44,28 @@ public class ExamRepository : RepositoryBase, IExamRepository
         return exam;
     }
 
-    public async Task<IEnumerable<Exam>> GetAllExamsAsync(int? courseImplementationId)
+    public async Task<IEnumerable<Exam>> GetAllExamsAsync(int? courseImplementationId, int? userId, string? role)
     {
+        IEnumerable<Exam> exams;
         if (courseImplementationId != null)
-            return await _dbContext.Exams.Where(x => x.CourseImplementationId == courseImplementationId).ToListAsync();
+        {
+             exams = await _dbContext.Exams.Where(x => x.CourseImplementationId == courseImplementationId).ToListAsync();
+        }
         else
-            return await _dbContext.Exams.ToListAsync();
+        {
+            exams = await _dbContext.Exams.ToListAsync();
+        }
+        if (userId == null)
+            return exams;
+        List<Exam> exList = new List<Exam>();
+        foreach (Exam exam in exams)
+        {
+            if (await IsOwner(userId.Value, role!, exam.Id, courseImplementationId: null))
+            {
+                exList.Add(exam);
+            }
+        }
+        return exList;
     }
 
     public async Task<Exam?> GetExamAsync(int id)
@@ -59,15 +77,12 @@ public class ExamRepository : RepositoryBase, IExamRepository
     {
         Exam? exam = await GetExamAsync(examId);
         if (exam == null) return null;
-        return exam.Id;
+        //return exam.Id;
+        return exam.CourseImplementationId;
     }
     public async Task<bool> IsOwner(int userId, string role, int examId, int? courseImplementationId = null)
     {
         return await IsOwnerOf(userId, role, examId, GetCourseImpId_FromObjectById, courseImplementationId);
-
-        //return await StaticRepoFuncs.IsOwner(userId, role, examId, _dbContext,
-        //                                    GetCourseImpId_FromObjectById,
-        //                                    courseImplementationId);
     }
 
     public async Task<Exam?> UpdateExamAsync(int id, Exam exam)

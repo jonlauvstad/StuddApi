@@ -21,6 +21,7 @@ public class User
     public virtual ICollection<AssignmentResult> AssignmentResults { get; set; } = new HashSet<AssignmentResult>();
     public virtual ICollection<Attendance> Attendances { get; set; } = new HashSet<Attendance>();
     public virtual ICollection<LectureVenue> LectureVenues { get; set; } = new HashSet<LectureVenue>();
+    public virtual ICollection<ExamGroup> ExamGroups { get; set; } = new HashSet<ExamGroup>();
 
 
     /*

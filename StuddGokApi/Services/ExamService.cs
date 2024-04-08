@@ -38,9 +38,9 @@ public class ExamService : IExamService
         return _mapper.MapToDTO(exam);
     }
 
-    public async Task<IEnumerable<ExamDTO>> GetAllExamsAsync(int? courseImplementationId)
+    public async Task<IEnumerable<ExamDTO>> GetAllExamsAsync(int? courseImplementationId, int? userId, string? role)
     {
-        return (await _examRepository.GetAllExamsAsync(courseImplementationId)).Select(x=> _mapper.MapToDTO(x));
+        return (await _examRepository.GetAllExamsAsync(courseImplementationId, userId, role)).Select(x=> _mapper.MapToDTO(x));
         // from ex await _examRepository.GetAllExamsAsync(courseImplementationId) select _mapper.MapToDTO(ex); 
     }
 

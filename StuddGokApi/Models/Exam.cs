@@ -15,5 +15,6 @@ public class Exam
     // Forgot s at the end
     public virtual ICollection<ExamImplementation> ExamImplementation { get; set; } = new HashSet<ExamImplementation>();
     public virtual ICollection<ExamResult> ExamResults { get; set; } = new HashSet<ExamResult>();
+    public virtual ICollection<ExamGroup> ExamGroups { get; set; } = new HashSet<ExamGroup>();
     public virtual CourseImplementation? CourseImplementation { get; set; }
 }

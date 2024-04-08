@@ -78,7 +78,8 @@ builder.Services.AddSingleton<AlertUserList>();
 
 builder.Services.AddScoped<IExamService, ExamService>();
 builder.Services.AddScoped<IExamRepository, ExamRepository>();
-
+builder.Services.AddScoped<IExamGroupService, ExamGroupService>();
+builder.Services.AddScoped<IExamGroupRepository, ExamGroupRepository>();
 
 builder.Services.AddScoped<UserIdentifier>();
 

@@ -14,6 +14,7 @@ namespace StuddGokApi.Mappers
                 VenueId = model.VenueId,
                 StartTime = model.StartTime,
                 EndTime = model.EndTime,
+                UserExamImplementation = model.UserExamImplementation,
             };
 
             if ( model.Exam != null)
