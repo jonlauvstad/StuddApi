@@ -23,7 +23,9 @@ public class ExamImplementationDTO
     public string Location { get; set; } = string.Empty;
     public virtual ICollection<UserExamImplementation> UserExamImplementation { get; set; } = new List<UserExamImplementation>();
     public string CourseImplementationLink { get => $"/CourseImplementation/{CourseImplementationId}"; }
+    public string ExamLink { get => $"/Exam/{ExamId}"; }
     public string VenueLink { get => $"/Venue/{VenueId}"; }
     public string Link { get => $"/ExamImplementation/{Id}"; }
-
+    public List<int> ParticipantIds { get; set; } = new List<int>();
+    public IEnumerable<User?> Participants { get => UserExamImplementation.Select(x => x.User); } 
 }

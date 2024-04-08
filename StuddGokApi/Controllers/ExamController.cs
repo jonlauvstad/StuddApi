@@ -78,8 +78,15 @@ public class ExamController : ControllerBase
 
     [Authorize]
     [HttpGet(Name = "GetAllExams")]
-    public async Task<ActionResult<IEnumerable<ExamDTO>>> GetAllExams([FromQuery] int? courseImpId=null)
+    public async Task<ActionResult<IEnumerable<ExamDTO>>> GetAllExams([FromQuery] int? courseImpId=null, [FromQuery] bool isOwner=false)
     {
-        return Ok(await _examService.GetAllExamsAsync(courseImpId));
+        if (isOwner)
+        {
+            int user_id = (int)HttpContext.Items["UserId"]!;
+            string role = (string)HttpContext.Items["Role"]!;
+            return Ok(await _examService.GetAllExamsAsync(courseImpId, userId:user_id, role:role));
+        }
+        
+        return Ok(await _examService.GetAllExamsAsync(courseImpId, null, null));
     }
 }

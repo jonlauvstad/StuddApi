@@ -16,6 +16,7 @@ public class StuddGokDbContext : DbContext
     public DbSet<Attendance> Attendances { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<CourseImplementation> CourseImplementations { get; set; }
+    public DbSet<ExamGroup> ExamGroups { get; set; }
     public DbSet<Exam> Exams { get; set; }
     public DbSet<ExamImplementation> ExamImplementations { get; set; }
     public DbSet<ExamResult> ExamResults { get; set; }
