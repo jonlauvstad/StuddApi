@@ -6,5 +6,5 @@ public interface IAssignmentService
 {
     Task<AssignmentDTO?> GetAssignmentByIdAsync(int id);
 
-    Task<AssignmentDTO?> AddAssignmentAsync(AssignmentDTO assignment); 
+    Task<AssignmentDTO?> AddAssignmentAsync(AssignmentDTO assignment, int userId, string role); 
 }

@@ -33,7 +33,10 @@ public class AssignmentController : ControllerBase
     [HttpPost(Name = "AddAssignment")]
     public async Task<ActionResult<AssignmentDTO>> AddAssignment([FromBody] AssignmentDTO assignmentDTO)
     {
-        AssignmentDTO? assignment = await _assignmentService.AddAssignmentAsync(assignmentDTO);
+        int userId = (int)HttpContext.Items["UserId"]!;
+        string role = (string)HttpContext.Items["Role"]!;
+
+        AssignmentDTO? assignment = await _assignmentService.AddAssignmentAsync(assignmentDTO, userId, role);
         if (assignment == null)
         {
             return BadRequest("Vi kunne dessverre ikke legge til nytt arbeidskrav.");

@@ -7,11 +7,11 @@ using StuddGokApi.SSE;
 
 namespace StuddGokApi.Repositories;
 
-public class AssignmentRepository : IAssignmentRepository
+public class AssignmentRepository : RepositoryBase, IAssignmentRepository
 {
     private readonly StuddGokDbContext _dbContext;
 
-    public AssignmentRepository(StuddGokDbContext dbContext)
+    public AssignmentRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger) : base(dbContext, logger)
     {
         _dbContext = dbContext;
     }
@@ -30,14 +30,41 @@ public class AssignmentRepository : IAssignmentRepository
         return assignment;
     }
 
-    public async Task<Assignment?> AddAssignmentAsync(Assignment assignment)
+    public async Task<Assignment?> AddAssignmentAsync(Assignment assignment, int userId, string role)
     {
+        bool isOwner = await IsOwner(userId, role, assignment.Id, assignment.CourseImplementationId);
+        if (!isOwner)
+        {
+            _logger.LogInformation($"User {userId} forsøkte å legge til et arbeidskrav uten tillatelse.");
+            
+            return null;
+        }
+
         EntityEntry<Assignment> e = await _dbContext.Assignments.AddAsync(assignment);
         await _dbContext.SaveChangesAsync();
         return e.Entity;
 
     }
 
+    
+
+    public async Task<bool> IsOwner(int userId, string role, int assignmentId, int? courseImplementationId = null)
+    {
+        return await IsOwnerOf(userId, role, assignmentId, GetCourseImpId_FromObjectById, courseImplementationId);
+    }
+
+    public async Task<Assignment?> GetAssignmentAsync(int id)
+    {
+        return await _dbContext.Assignments.FirstOrDefaultAsync(x => x.Id == id);
+       
+    }
+
+    public async Task<int?> GetCourseImpId_FromObjectById(int assignmentId)
+    {
+        Assignment? assignment = await GetAssignmentAsync(assignmentId);
+        if (assignment == null) return null;
+        return assignment.Id;
+    }
 }
 
 

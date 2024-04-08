@@ -25,14 +25,14 @@ public class AssignmentService : IAssignmentService
         return _assignmentMapper.MapToDTO(assignment);
     }
 
-    public async Task<AssignmentDTO?> AddAssignmentAsync(AssignmentDTO assignment)
+    public async Task<AssignmentDTO?> AddAssignmentAsync(AssignmentDTO assignment, int userId, string role)
     {
         if (assignment == null)
         {
             throw new ArgumentNullException(nameof(assignment), "Assignment cannot be null.");
         }
 
-        Assignment? a = await _assignmentRepository.AddAssignmentAsync(_assignmentMapper.MapToModel(assignment));
+        Assignment? a = await _assignmentRepository.AddAssignmentAsync(_assignmentMapper.MapToModel(assignment), userId, role);
         if (a == null) { return null; }
         return _assignmentMapper.MapToDTO(a);
     }
