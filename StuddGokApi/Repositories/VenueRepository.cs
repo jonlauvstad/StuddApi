@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Options;
+using StuddGokApi.Configuration;
 using StuddGokApi.Data;
 using StuddGokApi.DTMs;
 using StuddGokApi.Models;
@@ -10,10 +12,12 @@ namespace StuddGokApi.Repositories;
 public class VenueRepository : IVenueRepository
 {
     private readonly StuddGokDbContext _dbContext;
+    private readonly IOptions<HomeVenue> _homeVenueConfig;
 
-    public VenueRepository(StuddGokDbContext dbContext)
+    public VenueRepository(StuddGokDbContext dbContext, IOptions<HomeVenue> homeVenueConfig)
     {
         _dbContext = dbContext;
+        _homeVenueConfig = homeVenueConfig;
     }
 
     public async Task<LectureVenue?> AddLectureVenueAsync(LectureVenue lectureVenue)
@@ -27,6 +31,8 @@ public class VenueRepository : IVenueRepository
 
     public async Task<Event?> CheckVenueAsync(int venueId, DateTime from, DateTime to)
     {
+        if (venueId == _homeVenueConfig.Value.Id) return null; 
+
         List<Event> events = new List<Event>();
 
         IEnumerable<LectureVenue> lvs = await _dbContext.LectureVenues.Where(x => x.VenueId == venueId).ToListAsync();

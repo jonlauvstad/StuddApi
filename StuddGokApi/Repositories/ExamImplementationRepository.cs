@@ -2,11 +2,14 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Renci.SshNet.Messages.Authentication;
 using StuddGokApi.Data;
+using StuddGokApi.DTMs;
+using StuddGokApi.DTOs;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.SSE;
 using StudentResource.Models.POCO;
 using System;
+using System.Collections.Generic;
 
 namespace StuddGokApi.Repositories;
 
@@ -92,6 +95,54 @@ public class ExamImplementationRepository : RepositoryBase, IExamImplementationR
         //return examImps;
     }
 
+    public async Task<bool> DeleteByExamIdAsync(int examId)
+    {
+        // 0) Getting the exam and userExImps
+        Exam? exam = await _dbContext.Exams.FirstOrDefaultAsync(x => x.Id == examId);
+        if(exam == null) return false;
+        IEnumerable<UserExamImplementation> userExImps =
+            await _dbContext.UserExamImplementations.Where(x => x.ExamImplementation!.ExamId == examId).ToListAsync();
+
+        // 1) Making alerts
+        List<Alert> alerts = new List<Alert>();
+        foreach (UserExamImplementation ux in userExImps)
+        {
+            alerts.Add(AlertFromExam(exam, ux.ExamImplementationId, ux.UserId, EntityAction.deleted));
+        }
+
+        // 2) Delete examImps & insert alerts
+        bool success = true;
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    // Delete ExamImplementations
+                    int numDeleted = await _dbContext.ExamImplementations.Where(x => x.ExamId == examId).ExecuteDeleteAsync();
+                    await _dbContext.SaveChangesAsync();
+                    if (numDeleted == 0) throw new Exception();
+                        
+                    // Adding alerts to db
+                    await _dbContext.Alerts.AddRangeAsync(alerts);
+                    transaction.Commit();
+                }
+                catch
+                {
+                    transaction.Rollback();
+                    success = false;
+                }
+            }
+        });
+        if (!success) return false;
+
+        // 3) SSE
+        foreach (int userId in userExImps.Select(x => x.UserId)) { _alertUserList.UserIdList.Add(userId); }
+
+        return true;
+    }
+
     public async Task<ExamImplementation?> GetExamImplementationById(int id)
     {
         IEnumerable<ExamImplementation> eis = await _dbContext.ExamImplementations.Where(x => x.Id == id).ToListAsync();
@@ -137,4 +188,54 @@ public class ExamImplementationRepository : RepositoryBase, IExamImplementationR
             Links = $"/ExamImplementation/{exImp.Id}"
         };
     }
+
+    private Alert AlertFromExam(Exam exam, int examImpId,int userId, EntityAction action)
+    {
+        string actionString = MatchAction(action);
+        return new Alert
+        {
+            UserId = userId,
+            Time = DateTime.Now,
+            Seen = false,
+            Message = $"Eksamen i {exam.CourseImplementation!.Name} har blitt {actionString}.",
+            Links = $"/ExamImplementation/{examImpId}"
+        };
+    }
+
+    private async Task<IEnumerable<ExamImplementation>> GetExamImpsForProgImpFromExamIdAsync(int examId)
+    {
+        Exam? exam = await _dbContext.Exams.FirstOrDefaultAsync(x => x.Id.Equals(examId));
+        if ( exam == null) return Enumerable.Empty<ExamImplementation>();
+
+        int progImpId = 
+            (await _dbContext.ProgramCourses.FirstOrDefaultAsync(x => x.CourseImplementationId == exam.CourseImplementationId))!
+            .ProgramImplementationId;
+
+        IEnumerable<int> cimpIds = await
+            _dbContext.ProgramCourses.Where(x => x.ProgramImplementationId == progImpId).Select(e => e.CourseImplementationId)
+            .ToListAsync();
+
+        IEnumerable<int> examIds = await 
+            _dbContext.Exams.Where(x => cimpIds.Contains(x.CourseImplementationId)).Select(e => e.Id).ToListAsync();
+
+        return await _dbContext.ExamImplementations.Where(x => examIds.Contains(x.ExamId)).ToListAsync();
+    }
+
+    private bool NotValidTime(IEnumerable<ExamImplementation> examImps, ExamImplementationDTO exImpDTO)
+    {
+        return examImps.Any(x => x.StartTime < exImpDTO.EndTime && x.EndTime > exImpDTO.StartTime);
+    }
+
+    public async Task<bool> ValidTime_ProgCourses_ExamImpAsync(int examId, IEnumerable<ExamImplementationDTO> exImpDTOs)
+    {
+        IEnumerable<ExamImplementation> exImps = await GetExamImpsForProgImpFromExamIdAsync(examId);
+        foreach (ExamImplementationDTO exImpDTO in exImpDTOs)
+        {
+            if (exImpDTO.ExamId != examId) continue;
+            if (NotValidTime(exImps, exImpDTO)) return false;
+        }
+        return true;
+    }
+
+    
 }
