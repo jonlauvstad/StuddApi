@@ -14,7 +14,13 @@ namespace StuddGokApi.Mappers
                 VenueId = model.VenueId,
                 StartTime = model.StartTime,
                 EndTime = model.EndTime,
-                UserExamImplementation = model.UserExamImplementation,
+                //UserExamImplementation = model.UserExamImplementation,
+                UserExamImplementation = model.UserExamImplementation
+                                        .Select(x => new UserExamImplementation
+                                        {
+                                            UserId = x.UserId,
+                                            ExamImplementationId = x.ExamImplementationId,
+                                        }).ToList()
             };
 
             if ( model.Exam != null)

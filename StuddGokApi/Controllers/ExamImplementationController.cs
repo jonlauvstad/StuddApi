@@ -11,10 +11,12 @@ namespace StuddGokApi.Controllers;
 public class ExamImplementationController : ControllerBase
 {
     private readonly IExamImplementationService _examImpService;
+    private readonly ILogger<ExamImplementationController> _logger;
 
-    public ExamImplementationController(IExamImplementationService examImpService)
+    public ExamImplementationController(IExamImplementationService examImpService, ILogger<ExamImplementationController> logger)
     {
         _examImpService = examImpService;
+        _logger = logger;
     }
 
     [Authorize]
@@ -37,22 +39,34 @@ public class ExamImplementationController : ControllerBase
         return Ok(await _examImpService.GetExamImpsByExamIdAsync(examId));
     }
 
+    [Authorize(Roles = "admin, teacher")]
+    [HttpDelete("Exam/{examId}", Name = "DeleteExamImplementationsByExamId")]
+    public async Task<ActionResult<IEnumerable<ExamImplementationDTO>>> DeleteExamImpsByExamId([FromRoute] int examId)
+    {
+        int userId = (int)HttpContext.Items["UserId"]!;
+        string role = (string)HttpContext.Items["Role"]!;
+
+        IEnumerable<ExamImplementationDTO>? xiDTOs = await _examImpService.DeleteByExamIdAsync(examId, userId, role);
+        if (xiDTOs != null) return Ok(xiDTOs);
+        return BadRequest($"Could not delete the examimplementations with examid {examId}");
+    }
+
 
     [Authorize(Roles = "admin, teacher")]
     [HttpPost(Name = "AddExamImplementationsAndUserExamImplementations")]
     public async Task<ActionResult<IEnumerable<ExamImplementationDTO>>> 
         AddExamImplementationsAndUserExamImplementations([FromBody] IEnumerable<ExamImplementationDTO> examImpDTOs)
     {
-
-        //await Task.Delay(10);
-        //return Ok(examImpDTOs);
-
         int userId = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
         IEnumerable<ExamImplementationDTO>? exImpDTOs = 
             await _examImpService.AddExamImplementationsAndUserExamImplementationsAsync(userId, role, examImpDTOs);
-        if (examImpDTOs == null) return BadRequest("Kunne ikke registrere EksamensImplementeringene/BrukerEksamensImplementeringene");
+        
+        if (exImpDTOs == null)
+        {
+            return BadRequest("Kunne ikke registrere EksamensImplementeringene/BrukerEksamensImplementeringene");
+        }
         return Ok(exImpDTOs);
     }
 }
