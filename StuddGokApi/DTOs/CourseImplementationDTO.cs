@@ -26,4 +26,6 @@ public class CourseImplementationDTO
     public string CourseLink { get => $"/Course/{CourseId}"; }
     public string Link { get => $"/CourseImplementation/{Id}"; }
     public int NumStudents { get; set; }
+    public string ProgramImplementationName { get; set; } = string.Empty;
+    public string Teachers { get; set; } = string.Empty;
 }
