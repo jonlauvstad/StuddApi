@@ -23,23 +23,5 @@ public class CourseImplementation
     public virtual ICollection<Exam> Exams { get; set; } = new HashSet<Exam>();
     public virtual Course? Course { get; set; }
 
-    /*
-     *     def __init__(self, course_id, course_table, startdate, enddate):
-        CourseImplementation.count += 1
-        self.id = CourseImplementation.count
-        self.course_id = course_id
-        self.startdate = datetime.datetime.strptime(startdate, "%d.%m.%y")
-        self.enddate = datetime.datetime.strptime(enddate, "%d.%m.%y")
-        self.semester = "V" if self.startdate.month < 7 else "H"
-        self.end_semester = "V" if self.enddate.month < 7 else "H"
-        self.year = self.startdate.year % 100
-        self.end_year = self.enddate.year % 100
-        self.course = [item for item in course_table if item.id == course_id][0]  # Utenfor tabellen
-        self.code = f"{self.course.code}{self.semester}{self.year}"
-        self.name = f"{self.course.name} {self.semester}{self.year}"
-        self.programs = []              # Program       via program_course_table    hjelpetabell
-        self.teachers = []              # User          via teacher_course_table    hjelpetabell
-        self.exam = []                  # Exam          via exam_table              (exam har ett course)
-        self.assignments = []           # Assignment    via assignment_table        (assignment har ett course)
-    */
+    
 }

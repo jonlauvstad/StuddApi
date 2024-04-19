@@ -26,6 +26,12 @@ public class CourseImplementationMapper : IMapper<CourseImplementation, CourseIm
             StartDate = model.StartDate,
             EndDate = model.EndDate,
             NumStudents = numStudents,
+            ProgramImplementationName =
+                model.ProgramCourses.FirstOrDefault(x => x.CourseImplementationId == model.Id)!.ProgramImplementation!.Name,
+            Teachers = string.Join(",",
+                model.TeacherCourses.Where(x => x.CourseImplementationId == model.Id)
+                .Select(y => $"{y.User!.FirstName} {y.User.LastName}")
+                )
         };
     }
 

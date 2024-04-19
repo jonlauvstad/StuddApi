@@ -42,4 +42,14 @@ public class CourseImplementationController : ControllerBase
     {
         return Ok(await _cimpService.GetQualifiedStudentObjectsAsync(courseImpId));
     }
+
+    [Authorize]
+    [HttpGet("{id}", Name ="GetCourseImpById")]
+    public async Task<ActionResult<CourseImplementationDTO>> GetCourseImpById([FromRoute] int id)
+    {
+        CourseImplementationDTO? ciDTO = await _cimpService.GetCourseImpByIdAsync(id);
+        if (ciDTO == null) return NotFound($"Could not find courseimplementation with id {id}");
+        return Ok(ciDTO);
+    }
+
 }
