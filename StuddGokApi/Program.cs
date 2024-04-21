@@ -20,8 +20,14 @@ using StuddGokApi.Models;
 using Serilog;
 using StuddGokApi.SSE;
 using StuddGokApi.Controllers;
+using StuddGokApi.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Hente konfig data fra appsettings.json
+var homeVenueConfig = builder.Configuration.GetSection("HomeVenue");        // Lager instans med dataene fra konfigfila
+// Knytte sammen config klassen vi laget med config data (NAVN VIKTIG!!)
+builder.Services.Configure<HomeVenue>(homeVenueConfig);                     // Konfigurerer med objektet fra linja over
 
 // Add services to the container.
 

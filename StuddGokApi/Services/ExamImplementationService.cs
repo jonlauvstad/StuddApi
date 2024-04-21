@@ -3,6 +3,8 @@ using StuddGokApi.Mappers;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
+using StudentResource.Models.POCO;
+using System.Data;
 using System.Linq;
 
 namespace StuddGokApi.Services;
@@ -41,14 +43,23 @@ public class ExamImplementationService : IExamImplementationService
     {
         // IsOwner
         foreach (ExamImplementationDTO exImpDTO in examImpDTOs)
-            {
-                bool isOwner = await _examImpRepo.IsOwner(userId, role, exImpDTO.ExamId);
-                if (!isOwner) return null;
-            }
+        {
+            bool isOwner = await _examImpRepo.IsOwner(userId, role, exImpDTO.ExamId);
+            if (!isOwner) return null;
+        }
 
 
         // Not Exam for 'ProgramCourses' simultaniously
-
+        IEnumerable<int> distinctExamIds = examImpDTOs.Select(x => x.ExamId).Distinct();
+        foreach(int exId in distinctExamIds)
+        {
+            if (!await _examImpRepo.ValidTime_ProgCourses_ExamImpAsync(exId, examImpDTOs))
+            {
+                _logger.LogDebug("_____________OVERLAPPENDE TID!!!_______________");        
+                return null;
+            }
+                
+        }
 
         // CheckVenue 
         foreach (ExamImplementationDTO exImpDTO in examImpDTOs) 
@@ -64,4 +75,24 @@ public class ExamImplementationService : IExamImplementationService
         if (examImps == null) return null;
         return examImps.Select(x => _examImpMapper.MapToDTO(x));
     }
+
+    public async Task<IEnumerable<ExamImplementationDTO>?> DeleteByExamIdAsync(int examId, int userId, string role)
+    {
+        // Getting the exImps
+        IEnumerable<ExamImplementation> examImps = await _examImpRepo.GetExamImpsByExamIdAsync(examId);
+        IEnumerable<ExamImplementationDTO> eximpDTOs = examImps.Select(x => _examImpMapper.MapToDTO(x));
+
+        // IsOwner
+        foreach (ExamImplementation exImp in examImps)
+        {
+            bool isOwner = await _examImpRepo.IsOwner(userId, role, exImp.ExamId);
+            if (!isOwner) return null;
+        }
+
+        // Delete
+        bool success =  await _examImpRepo.DeleteByExamIdAsync(examId);
+        if (!success) return null;
+        return eximpDTOs;
+    }
 }
+    
