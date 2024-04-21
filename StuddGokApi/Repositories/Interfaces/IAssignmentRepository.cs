@@ -13,4 +13,8 @@ public interface IAssignmentRepository
     Task<Assignment?> GetAssignmentAsync(int id);
 
     Task<int?> GetCourseImpId_FromObjectById(int assignmentId);
+    
+    Task<IEnumerable<Assignment>?>
+        AddAssignmentAndUserAssignmentImplementationsAsync(List<Assignment> assignmentImps,
+            List<List<int>> 
 }

@@ -11,7 +11,8 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
 {
     private readonly StuddGokDbContext _dbContext;
 
-    public AssignmentRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger) : base(dbContext, logger)
+    public AssignmentRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger, AlertUserList altertUserList) 
+        : base(dbContext, logger, altertUserList)
     {
         _dbContext = dbContext;
     }
@@ -39,14 +40,36 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
             
             return null;
         }
-
+        
         EntityEntry<Assignment> e = await _dbContext.Assignments.AddAsync(assignment);
         await _dbContext.SaveChangesAsync();
         return e.Entity;
-
     }
 
-    
+    public async Task<IEnumerable<Assignment>?>
+        AddAssignmentAndUserAssignmentImplementationsAsync(List<Assignment> assignmentImps,
+            List<List<int>> listOfPartipLists)
+    {
+             
+        bool success = true;
+
+        var strategy = _dbContext.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async () =>
+        {
+            using (var transaction = _dbContext.Database.BeginTransaction())
+            {
+                try
+                {
+                    await _dbContext.Assignments.AddAsync(assignment);
+                    await _dbContext.SaveChangesAsync();
+
+                    
+    }
+
+                
+
+
 
     public async Task<bool> IsOwner(int userId, string role, int assignmentId, int? courseImplementationId = null)
     {
