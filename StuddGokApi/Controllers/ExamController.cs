@@ -35,6 +35,8 @@ public class ExamController : ControllerBase
     [HttpPut("{id}", Name = "UpdateExam")]
     public async Task<ActionResult<ExamDTO>> UpdateExam([FromRoute] int id, [FromBody] ExamDTO examDTO)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         int user_id = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
@@ -65,6 +67,8 @@ public class ExamController : ControllerBase
     [HttpPost(Name = "AddExam")]
     public async Task<ActionResult<ExamDTO>> AddExam([FromBody] ExamDTO examDTO)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         int user_id = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 

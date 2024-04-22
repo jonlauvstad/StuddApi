@@ -25,7 +25,16 @@ public class ExamRepository : RepositoryBase, IExamRepository
         EntityEntry e = await _dbContext.Exams.AddAsync(exam);
         await _dbContext.SaveChangesAsync();
         object o = e.Entity;
-        if (o is Exam) { return (Exam)o; }
+        if (o is Exam) 
+        { 
+            Exam ex = (Exam)o;
+            int id = ex.Id;
+            return await _dbContext.Exams
+                .Include(x => x.CourseImplementation)
+                .Include(x => x.ExamImplementation)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+        }
         return null;
     }
 
