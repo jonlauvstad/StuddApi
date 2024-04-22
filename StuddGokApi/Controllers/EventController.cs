@@ -45,10 +45,5 @@ public class EventController : ControllerBase
         [FromQuery] DateTime? from = null, [FromQuery] DateTime? to = null)
     {
         return Ok(await _eventService.GetAllEventsAsync(type, from, to));
-        //if (events == null)
-        //{
-        //    return NotFound("Du har ikke lov til å bruke denne routen.");
-        //}
-        //return Ok(events);
     }
 }

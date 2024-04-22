@@ -33,8 +33,7 @@ public class ExamGroupController : ControllerBase
     [HttpPost("Exam/{examId}", Name = "AddExamGroup")]
     public async Task<ActionResult<IEnumerable<ExamGroupDTO>>> AddExamGroup([FromRoute] int examId, [FromBody] IEnumerable<ExamGroupDTO> exGrDTOs)
     {
-        //_logger.LogDebug(exGrDTOs.Count().ToString());
-        //return Ok(exGrDTOs.Count());
+        if (!ModelState.IsValid) return BadRequest(ModelState);
 
         int userId = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
@@ -60,6 +59,8 @@ public class ExamGroupController : ControllerBase
     [HttpPost(Name = "AddOneExamGroup")]
     public async Task<ActionResult<ExamGroupDTO>> AddOneExamGroup([FromBody] ExamGroupDTO examGroup)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
+
         int userId = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
