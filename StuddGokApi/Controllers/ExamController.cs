@@ -75,7 +75,7 @@ public class ExamController : ControllerBase
         ExamDTO? exam = await _examService.AddExamAsync(examDTO, user_id, role);
         if (exam == null)
         {
-            return NotFound($"We could unfortunately not add the exam with to the database.");
+            return NotFound($"We could unfortunately not add the exam to the database.");
         }
         return Ok(exam);
     }
