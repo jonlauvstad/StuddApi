@@ -29,6 +29,50 @@ public class VenueRepository : IVenueRepository
         return null;
     }
 
+    public async Task<Venue?> DeleteVenueAsync(int id)
+    {
+        Venue? venue = await GetVenueByIdAsync(id);
+        if (venue == null) return null;
+        int numDeleted = await _dbContext.Venues.Where(x => x.Id == id).ExecuteDeleteAsync();
+        if (numDeleted == 0)
+        {
+            // Logging
+            return null;
+        }
+        return venue;
+    }
+
+    public async Task<Venue?> UpdateVenueAsync(int id, Venue venue)
+    {
+        int i = await _dbContext.Venues.Where(x => x.Id == id)
+            .ExecuteUpdateAsync(setters => setters
+            .SetProperty(v => v.Name, venue.Name)
+            .SetProperty(v => v.Description, venue.Description)
+            .SetProperty(v => v.LocationId, venue.LocationId)
+            .SetProperty(v => v.StreetAddress, venue.StreetAddress)
+            .SetProperty(v => v.PostCode, venue.PostCode)
+            .SetProperty(v => v.City, venue.City)
+            .SetProperty(v => v.Capacity, venue.Capacity)
+        );
+        if (i == 0)
+        {
+            // Logging
+            return null;
+        }
+        return await _dbContext.Venues.FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<Venue?> AddVenueAsync(Venue venue)
+    {
+        EntityEntry e = await _dbContext.Venues.AddAsync(venue);
+        await _dbContext.SaveChangesAsync();
+        object o = e.Entity;
+        if (!(o is Venue)) return null;
+        return await _dbContext.Venues
+            .Include(v => v.Location)
+            .FirstOrDefaultAsync(x =>  x.Id == ((Venue)o).Id);
+    }
+
     public async Task<Event?> CheckVenueAsync(int venueId, DateTime from, DateTime to)
     {
         if (venueId == _homeVenueConfig.Value.Id) return null; 
@@ -66,6 +110,11 @@ public class VenueRepository : IVenueRepository
         IEnumerable<Event> evs = events.Where(x => x.Time < to && x.TimeEnd > from);
         if (evs.Any()) { return evs.First(); }
         return null;
+    }
+
+    public async Task<IEnumerable<Location>> GetAllLocationsAsync()
+    {
+        return await _dbContext.Locations.ToListAsync();
     }
 
     public async Task<IEnumerable<Venue>> GetAllVenuesAsync((DateTime from, DateTime to)? availableFromTo = null)
