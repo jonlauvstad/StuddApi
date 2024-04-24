@@ -12,6 +12,7 @@ namespace StuddGokApi.Controllers;
 public class AssignmentController : ControllerBase
 {
     private readonly IAssignmentService _assignmentService;
+    private readonly ILogger<AssignmentController> _logger;
 
     public AssignmentController(IAssignmentService assignmentService)
     {
@@ -87,6 +88,7 @@ public class AssignmentController : ControllerBase
 
         if (assignment == null)
         {
+            
             return NotFound($"We could unfortunately not delete the exam with id {id}.");
         }
         return Ok(assignment);
