@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StuddGokApi.DTOs;
+using StuddGokApi.Extensions;
 using StuddGokApi.Services;
 using StuddGokApi.Services.Interfaces;
 
@@ -28,6 +29,7 @@ public class ExamController : ControllerBase
         {
             return NotFound($"We could unfortunately not find any exam with id {id}.");
         }
+        
         return Ok(exam);
     }
 
@@ -84,13 +86,18 @@ public class ExamController : ControllerBase
     [HttpGet(Name = "GetAllExams")]
     public async Task<ActionResult<IEnumerable<ExamDTO>>> GetAllExams([FromQuery] int? courseImpId=null, [FromQuery] bool isOwner=false)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug(_logger.Controller($"Exam", "Exam", "GET", InOut.In, traceId!));
+
         if (isOwner)
         {
             int user_id = (int)HttpContext.Items["UserId"]!;
             string role = (string)HttpContext.Items["Role"]!;
+            
+            _logger.LogDebug(_logger.Controller($"Exam", "Exam", "GET", InOut.Out, traceId!, Ok().StatusCode));
             return Ok(await _examService.GetAllExamsAsync(courseImpId, userId:user_id, role:role));
         }
-        
+        _logger.LogDebug(_logger.Controller($"Exam", "Exam", "GET", InOut.Out, traceId!, Ok().StatusCode));
         return Ok(await _examService.GetAllExamsAsync(courseImpId, null, null));
     }
 }
