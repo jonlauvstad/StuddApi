@@ -86,18 +86,15 @@ public class ExamController : ControllerBase
     [HttpGet(Name = "GetAllExams")]
     public async Task<ActionResult<IEnumerable<ExamDTO>>> GetAllExams([FromQuery] int? courseImpId=null, [FromQuery] bool isOwner=false)
     {
-        string? traceId = System.Diagnostics.Activity.Current?.Id;
-        _logger.LogDebug(_logger.Controller($"Exam", "Exam", "GET", InOut.In, traceId!));
+        //string? traceId = System.Diagnostics.Activity.Current?.Id;
 
         if (isOwner)
         {
             int user_id = (int)HttpContext.Items["UserId"]!;
             string role = (string)HttpContext.Items["Role"]!;
-            
-            _logger.LogDebug(_logger.Controller($"Exam", "Exam", "GET", InOut.Out, traceId!, Ok().StatusCode));
             return Ok(await _examService.GetAllExamsAsync(courseImpId, userId:user_id, role:role));
         }
-        _logger.LogDebug(_logger.Controller($"Exam", "Exam", "GET", InOut.Out, traceId!, Ok().StatusCode));
+        
         return Ok(await _examService.GetAllExamsAsync(courseImpId, null, null));
     }
 }
