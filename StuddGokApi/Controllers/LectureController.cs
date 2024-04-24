@@ -61,7 +61,6 @@ public class LectureController : ControllerBase
         LectureDTO? lecDTO = await _lectureService.UpdateLectureAsync(lectureDTO, user_id, role);
         if (lecDTO == null) 
         {
-            _logger.LogDebug("Servic'n returnerer null.");
             return NotFound($"Unable to update lecture with id {id}"); 
         }
         return Ok(lecDTO);
@@ -90,11 +89,9 @@ public class LectureController : ControllerBase
     [HttpPost("multiple", Name = "AddMultipleLectures")]
     public async Task<ActionResult<IEnumerable<LectureDTO>>> AddMultiple([FromBody] IEnumerable<LectureDTO> lectureDTOs)
     {
-        _logger.LogDebug(lectureDTOs.ToString());
         int user_id = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
         IEnumerable<LectureDTO>? lecDTOs = await _lectureService.AddMultipleAsync(lectureDTOs, user_id, role);
-        _logger.LogDebug($"lecDTOs is null: {lecDTOs==null}" );
         if (lecDTOs == null) return NotFound("Unable to add the requested lectures.");
         return Ok(lecDTOs);
     }

@@ -17,10 +17,10 @@ using StudentResource.Services;
 using Serilog;
 
 using StuddGokApi.Models;
-using Serilog;
 using StuddGokApi.SSE;
 using StuddGokApi.Controllers;
 using StuddGokApi.Configuration;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +88,7 @@ builder.Services.AddScoped<IExamGroupService, ExamGroupService>();
 builder.Services.AddScoped<IExamGroupRepository, ExamGroupRepository>();
 
 builder.Services.AddScoped<UserIdentifier>();
+builder.Services.AddTransient<GlobalExceptionMiddleware>();
 
 builder.Services.AddScoped<IStudentResourceService, StudentResourceService>();
 
@@ -143,6 +144,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
+app.UseSerilogRequestLogging(options =>
+{
+    options.GetLevel = (httpContext, elapsed, ex) =>
+    {
+        if (httpContext.Request.Path.StartsWithSegments("/api/v1/ServerSideEvent"))
+        {
+            return LogEventLevel.Verbose; 
+        }
+        return LogEventLevel.Information;
+    };
+});
+
 
 app.UseHttpsRedirection();
 
