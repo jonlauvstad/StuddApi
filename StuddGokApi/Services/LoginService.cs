@@ -15,19 +15,31 @@ public class LoginService : ILoginService
     private readonly IUserRepository _userRepo;
     private readonly IConfiguration _configuration;
     private readonly IMapper<User, UserDTO> _userMapper;
+    private readonly ILogger<LoginService> _logger;
 
-    public LoginService(IUserRepository userRepo, IConfiguration configuration, IMapper<User, UserDTO> userMApper)
+    public LoginService(IUserRepository userRepo, IConfiguration configuration, IMapper<User, UserDTO> userMApper, ILogger<LoginService> logger)
     {
         _userRepo = userRepo;
         _configuration = configuration;
         _userMapper = userMApper;
+        _logger = logger;
     }
 
     public async Task<string?> LoginAsync(LoginDTO loginDTO)
     {
         User? user = await _userRepo.GetUserByGokstadEmailAsync(loginDTO.GokstadEmail);
-        if (user == null) { return null; }
-        if (!BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.HashedPassword)) { return null; }
+        if (user == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LoginService", "LoginAsync", "_userRepo.GetUserByGokstadEmailAsync returns null", System.Diagnostics.Activity.Current?.Id);
+            return null; 
+        }
+        if (!BCrypt.Net.BCrypt.Verify(loginDTO.Password, user.HashedPassword)) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LoginService", "LoginAsync", "BCrypt.Net.BCrypt.Verify returns false", System.Diagnostics.Activity.Current?.Id);
+            return null; 
+        }
         return GenerateJwtToken(user);
     }
 

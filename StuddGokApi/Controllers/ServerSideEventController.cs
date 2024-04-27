@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using StuddGokApi.Configuration;
 using StuddGokApi.SSE;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -13,11 +15,13 @@ public class ServerSideEventController : ControllerBase
 {
     private AlertUserList _alertUserList;
     private readonly ILogger<ServerSideEventController> _logger;
+    private readonly IOptions<SseLogging> _sseLoggingConfig;
 
-    public ServerSideEventController(AlertUserList alertUserList, ILogger<ServerSideEventController> logger)
+    public ServerSideEventController(AlertUserList alertUserList, ILogger<ServerSideEventController> logger, IOptions<SseLogging> sseLoggingConfig)
     {
         _alertUserList = alertUserList;
         _logger = logger;
+        _sseLoggingConfig = sseLoggingConfig;
     }
 
 
@@ -54,7 +58,7 @@ public class ServerSideEventController : ControllerBase
         }
         catch (Exception ex) 
         {
-            //_logger.LogDebug(ex.Message);
+            if (_sseLoggingConfig.Value.On) _logger.LogDebug("ServerSideEventController RegisterForSSE ErrorMessage: {errMsg}", ex.Message);
         }
 
 

@@ -28,6 +28,9 @@ var builder = WebApplication.CreateBuilder(args);
 var homeVenueConfig = builder.Configuration.GetSection("HomeVenue");        // Lager instans med dataene fra konfigfila
 // Knytte sammen config klassen vi laget med config data (NAVN VIKTIG!!)
 builder.Services.Configure<HomeVenue>(homeVenueConfig);                     // Konfigurerer med objektet fra linja over
+var sseLoggingConfig = builder.Configuration.GetSection("SseLogging");
+builder.Services.Configure<SseLogging>(sseLoggingConfig);
+
 
 // Add services to the container.
 

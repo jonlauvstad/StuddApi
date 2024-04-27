@@ -11,13 +11,18 @@ namespace StuddGokApi.Repositories;
 
 public class VenueRepository : IVenueRepository
 {
+    // ABOUT LOGGING: Just logging in the functions that may provide info beyond returning null (captured in the service layer)
+    //  The logging in the service layer has references to the functions here.
+
     private readonly StuddGokDbContext _dbContext;
     private readonly IOptions<HomeVenue> _homeVenueConfig;
+    private readonly ILogger<VenueRepository> _logger;
 
-    public VenueRepository(StuddGokDbContext dbContext, IOptions<HomeVenue> homeVenueConfig)
+    public VenueRepository(StuddGokDbContext dbContext, IOptions<HomeVenue> homeVenueConfig, ILogger<VenueRepository> logger)
     {
         _dbContext = dbContext;
         _homeVenueConfig = homeVenueConfig;
+        _logger = logger;
     }
 
     public async Task<LectureVenue?> AddLectureVenueAsync(LectureVenue lectureVenue)
@@ -56,7 +61,6 @@ public class VenueRepository : IVenueRepository
         );
         if (i == 0)
         {
-            // Logging
             return null;
         }
         return await _dbContext.Venues.FirstOrDefaultAsync(x => x.Id == id);
@@ -108,7 +112,13 @@ public class VenueRepository : IVenueRepository
                             TimeEnd = e.EndTime,
                         });
         IEnumerable<Event> evs = events.Where(x => x.Time < to && x.TimeEnd > from);
-        if (evs.Any()) { return evs.First(); }
+        if (evs.Any()) 
+        {
+
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "VenueRepository", "CheckVenueAsync", "Returns an Event - is occupied", System.Diagnostics.Activity.Current?.Id);
+            return evs.First(); 
+        }
         return null;
     }
 
