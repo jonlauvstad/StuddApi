@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Serilog.Parsing;
 using StuddGokApi.Data;
 using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
@@ -18,22 +19,28 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
     }
 
 
+    private Alert AlertFromAssignment(Assignment assignment, int userId, EntityAction action)
+    {
 
+        string actionString = MatchAction(action);
+        return new Alert
+        {
+            UserId = userId,
+            Time = DateTime.Now,
+            Seen = false,
+            Message = $"Arbeidskravet '{assignment.Name}' i {assignment.CourseImplementation!.Name} har blitt {actionString}.",
+            Links = $"/Assignment/{assignment.Id}"
+        };
+    }
 
 
     public async Task<Assignment?> GetAssignmentByIdAsync(int id)
     {
         return await _dbContext.Assignments.FirstOrDefaultAsync(x => x.Id == id);
-
     }
 
     public async Task<IEnumerable<Assignment>> GetAllAssignmentsAsync(int? courseImpId, int? userId, string role)
     {
-
-        // admin should be able to fetch all
-        // teachers : IsOwner check
-        // students : IsEnrolled? (check courseImpId)
-
         IEnumerable<Assignment> assignments;
         if (courseImpId != null)
         {
@@ -60,50 +67,46 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
 
     public async Task<Assignment?> AddAssignmentAsync(Assignment assignment, int userId, string role)
     {
+
         bool isOwner = await IsOwner(userId, role, assignment.Id, assignment.CourseImplementationId);
-        if (!isOwner)
+        if (!isOwner) return null;
+
+
+        EntityEntry<Assignment> entry = _dbContext.Assignments.Add(assignment);
+        await _dbContext.SaveChangesAsync(); 
+
+        // Laste inn Assignment på nytt med relatert data
+        Assignment? reloadedAssignment = await _dbContext.Assignments
+            .Include(a => a.CourseImplementation)
+            .FirstOrDefaultAsync(a => a.Id == assignment.Id);
+
+
+        if (reloadedAssignment == null) return null;
+
+        if (reloadedAssignment.CourseImplementation == null)
         {
-            _logger.LogInformation($"User {userId} forsøkte å legge til et arbeidskrav uten tillatelse.");
-            
-            return null;
+            return reloadedAssignment; 
         }
-        
-        EntityEntry<Assignment> e = await _dbContext.Assignments.AddAsync(assignment);
+
+        // Opprette og lagre alert
+        Alert alert = AlertFromAssignment(reloadedAssignment, userId, EntityAction.added);
+        _dbContext.Alerts.Add(alert);
         await _dbContext.SaveChangesAsync();
-        object o = e.Entity;
-        if ( o is Assignment)
-        {
-            Assignment ass = (Assignment)o;
-            int id = ass.Id;
-            return await _dbContext.Assignments
-                .Include(x => x.CourseImplementation)
-                .FirstOrDefaultAsync(x => x.Id == id);
-            
-        }
-        return e.Entity;
+
+        return reloadedAssignment;
     }
-
-
 
 
 
     public async Task<Assignment?> UpdateAssignmentAsync(int id, Assignment assignment, int userId, string role)
     {
         Assignment? a = await _dbContext.Assignments.FirstOrDefaultAsync(x => x.Id == id);
-        if (a == null)
-        {
-            _logger.LogInformation($"Ingen arbeidskrav med id {id} funnet.");
-            return null;
-        }
+        if (a == null) return null;
 
 
 
         bool isOwner = await IsOwner(userId, role, assignment.Id, assignment.CourseImplementationId);
-        if (!isOwner)
-        {
-            _logger.LogInformation($"User {userId} forsøkte å endre et arbeidskrav uten tillatelse.");
-            return null;
-        }
+        if (!isOwner) return null;
 
         a.CourseImplementationId = assignment.CourseImplementationId;
         a.Name = assignment.Name;
@@ -112,31 +115,36 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
         a.Mandatory = assignment.Mandatory;
 
         await _dbContext.SaveChangesAsync();
+
+        // Opprette og lagre alert
+        Alert alert = AlertFromAssignment(a, userId, EntityAction.deleted);
+        await _dbContext.Alerts.AddAsync(alert);
+        await _dbContext.SaveChangesAsync();
+
+
         return a;
-
-
-        // TODO: Add check if assignment is not in a course implementation that is not active
 
     }
 
     public async Task<Assignment?> DeleteAssignmentAsync(int id, int userId, string role)
     {
+
+
+
         Assignment? a = await GetAssignmentByIdAsync(id);
-        if ( a == null)
-        {
-            _logger.LogInformation($"Ingen arbeidskrav med id {id} funnet.");
-            return null;
-        }
+        if ( a == null) return null;
 
 
         int deletedAssignment = await _dbContext.Assignments.Where(x => x.Id == id).ExecuteDeleteAsync();
         // await _dbContext.SaveChangesAsync();
 
-        if (deletedAssignment == 0)
-        {
-            _logger.LogInformation($"Ingen arbeidskrav med id {id} ble slettet.");
-            return null;
-        }
+        if (deletedAssignment == 0) return null;
+
+        // Opprette og lagre alert
+        Alert alert = AlertFromAssignment(a, userId, EntityAction.deleted);
+        await _dbContext.Alerts.AddAsync(alert);
+        await _dbContext.SaveChangesAsync();
+
         return a;
     }
 
@@ -144,7 +152,15 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
 
     public async Task<bool> IsOwner(int userId, string role, int assignmentId, int? courseImplementationId = null)
     {
-        return await IsOwnerOf(userId, role, assignmentId, GetCourseImpId_FromObjectById, courseImplementationId);
+        bool isOwner = await IsOwnerOf(userId, role, assignmentId, GetCourseImpId_FromObjectById, courseImplementationId);
+        
+        if (!isOwner)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "AssignmentRepository", "IsOwner", $"userId:{userId} role:{role} assignmentId:{assignmentId} gives false", System.Diagnostics.Activity.Current?.Id);
+
+        }
+        return isOwner;
     }
 
 
@@ -158,46 +174,3 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
 
 }
 
-
-
-
-
-//public async Task<IEnumerable<Assignment>?>
-//    AddAssignmentAndUserAssignmentImplementationsAsync(List<Assignment> assignmentImps,
-//        List<List<int>> listOfPartipLists)
-//{
-
-//    bool success = true;
-
-//    var strategy = _dbContext.Database.CreateExecutionStrategy();
-
-//    await strategy.ExecuteAsync(async () =>
-//    {
-//        using (var transaction = _dbContext.Database.BeginTransaction())
-//        {
-//            try
-//            {
-//                await _dbContext.Assignments.AddAsync(assignment);
-//                await _dbContext.SaveChangesAsync();
-//            }
-//            catch
-//            {
-//                success = false;
-//                throw;
-//            }
-//        }
-//    });
-//    return assignmentImps;
-
-
-//}
-
-
-
-    //public async Task<Assignment?> GetAssignmentById(int id)
-    //{
-    //    IEnumerable<Assignment> assignments = await _dbContext.Assignments.Where(a => a.Id == id).ToListAsync(); 
-    //    Assignment? assignment = assignments.FirstOrDefault();
-
-    //    return assignment;
-    //}

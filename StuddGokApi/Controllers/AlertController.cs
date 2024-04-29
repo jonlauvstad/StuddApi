@@ -24,6 +24,11 @@ public class AlertController : ControllerBase
     [HttpGet("User/{userId}", Name = "GetAllAlertsForUser")]
     public async Task<ActionResult<IEnumerable<AlertDTO>>> GetAllAlertsForUser([FromRoute] int userId, [FromQuery] bool seen)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "GetAllAlertsForUser", $"/Alert/User/{userId}", "GET", "In", traceId);
+
         return Ok(await _alertService.GetAlertsByUserIdAsync(userId, seen));
     }
 
@@ -31,10 +36,19 @@ public class AlertController : ControllerBase
     [HttpPut("User", Name = "UpdateUnseenAlertsForUser")]
     public async Task<ActionResult<IEnumerable<AlertDTO>?>> UpdateUnseenAlertsForUser()
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "UpdateUnseenAlertsForUser", $"/Alert/User", "PUT", "In", traceId);
+
         int user_id = (int)HttpContext.Items["UserId"]!;
 
         IEnumerable<AlertDTO>? alerts = await _alertService.UpdateUnseenAlertsByUserIdAsync(user_id);
         if (alerts == null) return NotFound("Kunne ikke oppdatere varslingene.");
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "UpdateUnseenAlertsForUser", $"/Alert/User", "PUT", "Out", traceId);
+
         return Ok(alerts);
     }
 
@@ -42,11 +56,20 @@ public class AlertController : ControllerBase
     [HttpPut(Name = "UpdateAlertsByAlertIds")]
     public async Task<ActionResult<IEnumerable<AlertDTO>?>> UpdateAlertsByAlertIds([FromBody] IEnumerable<int> alertIds)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "UpdateAlertsByAlertIds", $"/Alert", "PUT", "In", traceId);
+
         int user_id = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
         IEnumerable<AlertDTO>? alerts =  await _alertService.UpdateAlertsByAlertIdsAsync(alertIds, user_id, role);
         if (alerts == null) return NotFound("Kunne ikke oppdatere varslingene.");
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "UpdateAlertsByAlertIds", $"/Alert", "PUT", "Out", traceId);
+
         return Ok(alerts);
     }
 
@@ -54,9 +77,18 @@ public class AlertController : ControllerBase
     [HttpPut("{id}", Name = "UpdateAlertByAlertId")]
     public async Task<ActionResult<AlertDTO?>> UpdateAlertById([FromRoute] int id)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "UpdateAlertById", $"/Alert/{id}", "PUT", "In", traceId);
+
         int user_id = (int)HttpContext.Items["UserId"]!;
         AlertDTO? alert = await _alertService.UpdateAlertByIdAsync(id, user_id);
         if (alert == null) return NotFound("Kunne ikke oppdatere varslingen. Er den slettet?");
+
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "AlertController", "UpdateAlertById", $"/Alert/{id}", "PUT", "Out", traceId);
+
         return Ok(alert);
     }
 }

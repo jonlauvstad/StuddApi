@@ -33,31 +33,74 @@ public class AlertService : IAlertService
 
     public async Task<AlertDTO?> UpdateAlertByIdAsync(int id, int user_id)
     {
-        if (!await _alertRepository.IsOwner(user_id, id)) return null;
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+
+        if (!await _alertRepository.IsOwner(user_id, id))
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "AlertService", "UpdateAlertByIdAsync", "_alertRepository.IsOwner returns false", traceId);
+
+            return null;
+        }
+
         Alert? alert = await _alertRepository.UpdateAlertByIdAsync(id);
-        if (alert == null) return null;
+
+        if (alert == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "AlertService", "UpdateAlertByIdAsync", "_alertRepository.UpdateAlertByIdAsync returns null", traceId);
+
+            return null;
+        }
+
         return _alertMapper.MapToDTO(alert);
     }
 
     public async Task<IEnumerable<AlertDTO>?> UpdateAlertsByAlertIdsAsync(IEnumerable<int> alertIds, int userId, string role)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+
         if (role != "admin")
         {
             foreach (int alertId in alertIds)
             {
-                if (!await _alertRepository.IsOwner(userId, alertId)) return null;
+                if (!await _alertRepository.IsOwner(userId, alertId))
+                {
+                    _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                        "AlertService", "UpdateAlertsByAlertIdsAsync", "_alertRepository.IsOwner returns false", traceId);
+                    
+                    return null;
+                }
             }
         }
 
         IEnumerable<Alert>? alerts = await _alertRepository.UpdateAlertsByAlertIdsAsync(alertIds);
-        if (alerts == null) return null;
+        if (alerts == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "AlertService", "UpdateAlertsByAlertIdsAsync", "_alertRepository.UpdateAlertsByAlertIdsAsync returns null", traceId);
+
+            return null;
+        }
+
         return from alert in alerts select _alertMapper.MapToDTO(alert);
     }
 
     public async Task<IEnumerable<AlertDTO>?> UpdateUnseenAlertsByUserIdAsync(int userId)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
         IEnumerable<Alert>? alerts = await _alertRepository.UpdateUnseenAlertsByUserIdAsync(userId);
-        if (alerts == null) return null;
+        if (alerts == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "AlertService", "UpdateUnseenAlertsByUserIdAsync", "_alertRepository.UpdateUnseenAlertsByUserIdAsync returns null", traceId);
+
+            return null;
+        }
+
         return from alert in alerts select _alertMapper.MapToDTO(alert);
 
     }
