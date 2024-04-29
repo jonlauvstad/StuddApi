@@ -21,6 +21,9 @@ namespace StuddGokApi.Repositories;
 
 public class LectureRepository : ILectureRepository
 {
+    // ABOUT LOGGING: Just logging in the functions that may provide info beyond returning null/false (captured in the service layer)
+    //  The logging in the service layer has references to the functions here.
+
     private readonly StuddGokDbContext _dbContext;
     private readonly ILogger<LectureRepository> _logger;
     public AlertUserList _alertUserList;
@@ -411,6 +414,8 @@ public class LectureRepository : ILectureRepository
             if (courseImpIds.Contains(ciId)) return true;
         }
         _logger.LogDebug("IsOwner returning false");
+        _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureRepository", "IsOwner", $"Returns fale for userId-{userId} role-{role} lectureId-{lectureId}", System.Diagnostics.Activity.Current?.Id);
         return false;
     }
 

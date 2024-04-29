@@ -9,6 +9,7 @@ using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
 using StudentResource.Models.POCO;
 using System.Data;
+using System.Diagnostics;
 
 namespace StuddGokApi.Services;
 
@@ -38,10 +39,20 @@ public class LectureService : ILectureService
     public async Task<LectureDTO?> UpdateLectureAsync(LectureDTO lecture, int userId, string role)
     {
         // SJEKK PÅ TEACHER ER 'EIER'
-        if (! await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId:lecture.CourseImplementationId)) return null;
+        if (! await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId:lecture.CourseImplementationId)) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "UpdateLectureAsync", "_lectureRepository.IsOwner returns false", System.Diagnostics.Activity.Current?.Id);
+            return null;
+        }
 
         string? validated = await ValidateDates(lecture);
-        if (validated != null) { return null; }
+        if (validated != null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "UpdateLectureAsync", $"ValidateDates returns '{validated}'", System.Diagnostics.Activity.Current?.Id);
+            return null; 
+        }
 
         // Check if venue is available - that is if venues selected...
         int venueId = 0;
@@ -51,7 +62,12 @@ public class LectureService : ILectureService
             Event? e = await _venueRepository.CheckVenueAsync(venueId, lecture.StartTime, lecture.EndTime);
             if (e != null) 
             { 
-                if(e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") { return null; } 
+                if(e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") 
+                {
+                    _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                    "LectureService", "UpdateLectureAsync", "_venueRepository.CheckVenueAsync returns not null and the event is not this", System.Diagnostics.Activity.Current?.Id);
+                    return null; 
+                } 
             }
         }
 
@@ -59,32 +75,51 @@ public class LectureService : ILectureService
         Lecture? teacherLecture = await _lectureRepository.CheckTeacher(lecture.CourseImplementationId, lecture.StartTime, lecture.EndTime);
         if (teacherLecture != null)
         {
-            if(teacherLecture.Id != lecture.Id) { return null; }
+            if(teacherLecture.Id != lecture.Id) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "LectureService", "UpdateLectureAsync", "_lectureRepository.CheckTeacher returns not null and the lecture is not this", System.Diagnostics.Activity.Current?.Id);
+                return null; 
+            }
         }
 
         // Update lecture (and venue - that is lLectureVenue)
         Lecture? returnLecture = await _lectureRepository.UpdateLectureAndVenueAsync(_lectureMapper.MapToModel(lecture), venueId);
-        if (returnLecture == null) return null;
+        if (returnLecture == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "UpdateLectureAsync", "_lectureRepository.UpdateLectureAndVenueAsync returns null", System.Diagnostics.Activity.Current?.Id);
+            return null;
+        }
         LectureDTO returnLectureDTO = _lectureMapper.MapToDTO(returnLecture);
-        return await AddTeachers(returnLectureDTO); //_lectureMapper.MapToDTO(returnLecture);
+        return await AddTeachers(returnLectureDTO); 
     }
 
     public async Task<IEnumerable<LectureDTO>?> AddMultipleAsync(IEnumerable<LectureDTO> lectureDTOs, int userId, string role)
     {
-        _logger.LogDebug("AddMultipleAsync er blitt kalt.");
+        var traceId = System.Diagnostics.Activity.Current?.Id;
+
         // SJEKK PÅ TEACHER ER 'EIER'
         foreach (int id in from lec in lectureDTOs select lec.CourseImplementationId)
-        {                                                                                                     // SE LINJA UNDER!!  
-            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: id)) return null; //courseImplementationId: id istedet for null
+        {                                                                                                       
+            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: id)) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "LectureService", "AddMultipleAsync", "_lectureRepository.IsOwner returns false", traceId);
+                return null;
+            }
         }
-        _logger.LogDebug("Sjekk på eier gjennomført");
         // VALIDERE DATOER/TIDER
         foreach(LectureDTO lectureDTO in lectureDTOs)
         {
             string? validated = await ValidateDates(lectureDTO);
-            if (validated != null) { return null; }
+            if (validated != null) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "LectureService", "AddMultipleAsync", $"ValidateDates returns '{validated}'", traceId);
+                return null; 
+            }
         }
-        _logger.LogDebug("Datoer validert");
         // CHECK IF VENUE IS AVAILABLE - that is if venues selected...
         foreach (LectureDTO lecture in lectureDTOs)
         {
@@ -95,7 +130,12 @@ public class LectureService : ILectureService
                 Event? e = await _venueRepository.CheckVenueAsync(venueId, lecture.StartTime, lecture.EndTime);
                 if (e != null)
                 {
-                    if (e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") { return null; }
+                    if (e.UnderlyingId != lecture.Id || e.TypeEng != "Lecture") 
+                    {
+                        _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                        "LectureService", "AddMultipleAsync", "_venueRepository.CheckVenueAsync returns not null and the event is not this", traceId);
+                        return null; 
+                    }
                 }
             }
         }
@@ -106,7 +146,12 @@ public class LectureService : ILectureService
             Lecture? teacherLecture = await _lectureRepository.CheckTeacher(lecture.CourseImplementationId, lecture.StartTime, lecture.EndTime);
             if (teacherLecture != null)
             {
-                if (teacherLecture.Id != lecture.Id) { return null; }
+                if (teacherLecture.Id != lecture.Id) 
+                {
+                    _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                    "LectureService", "AddMultipleAsync", "_lectureRepository.CheckTeacher returns not null and the lecture is not this", traceId);
+                    return null; 
+                }
             }
         }
 
@@ -114,21 +159,32 @@ public class LectureService : ILectureService
         IEnumerable<Lecture>? lectures = 
             await _lectureRepository.AddMultipleAsync(from lectureDTO in lectureDTOs select _lectureMapper.MapToModel(lectureDTO),
                 from LectureDTO in lectureDTOs select LectureDTO.VenueIds);
-        if (lectures == null) { _logger.LogDebug($"Service: lectures==null: {lectures == null}"); return null; }
+        if (lectures == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "AddMultipleAsync", "_lectureRepository.AddMultipleAsync returns null", traceId);
+            return null; 
+        }
         return from lec in lectures select _lectureMapper.MapToDTO(lec);
     }
 
     public async Task<LectureBooking> AddLectureAsync(LectureDTO lecture, int userId, string role)
     {
+        var traceId = System.Diagnostics.Activity.Current?.Id;
+
         // SJEKK PÅ TEACHER ER 'EIER'
         if (!await _lectureRepository.IsOwner(userId, role, lecture.Id, courseImplementationId: lecture.CourseImplementationId))
         {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "AddLectureAsync", "_lectureRepository.IsOwner returns false", traceId);
             return new LectureBooking(null, null, null, null, null, failMsg: $"Not authorized to add lecture to course with id {lecture.CourseImplementationId}");
         }
 
         string? validated = await ValidateDates(lecture);
         if (validated != null) 
         {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "AddLectureAsync", $"ValidateDates returns '{validated}'", traceId);
             return new LectureBooking(null, null, null, null, null, failMsg:validated);
         }
 
@@ -150,6 +206,9 @@ public class LectureService : ILectureService
         // Return if venue or teacher not available
         if (venueEvent != null || teacherLecture != null) 
         {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "AddLectureAsync", "Teacher and/or Venue not available line 207", traceId);
+
             return new LectureBooking(null,
                 venueEvent,
                 teacherLecture == null ? null : _lectureMapper.MapToDTO(teacherLecture),
@@ -164,8 +223,8 @@ public class LectureService : ILectureService
             return new LectureBooking(returnLecture==null ? null : _lectureMapper.MapToDTO(returnLecture),
                 venueEvent,
                 teacherLecture == null ? null : _lectureMapper.MapToDTO(teacherLecture),
-                null,       //Venue
-                ciDTO);     //
+                null,       
+                ciDTO);     
         }
 
         (Lecture?, LectureVenue?)  lectureLectureVenue = 
@@ -183,10 +242,20 @@ public class LectureService : ILectureService
     public async Task<LectureDTO?> DeleteLectureByIdAsync(int id, int userId, string role)
     {
         // SJEKK PÅ TEACHER ER 'EIER'
-        if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
+        if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "DeleteLectureByIdAsync", "_lectureRepository.IsOwner returns false", System.Diagnostics.Activity.Current?.Id);
+            return null;
+        }
 
         Lecture? lecture = await _lectureRepository.DeleteLectureByIdAsync(id);
-        if (lecture == null) { return null; }
+        if (lecture == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "DeleteLectureByIdAsync", "_lectureRepository.DeleteLectureByIdAsync returns null", System.Diagnostics.Activity.Current?.Id);
+            return null; 
+        }
         LectureDTO lecDTO = _lectureMapper.MapToDTO(lecture);
         await AddTeachers(lecDTO);
         return lecDTO;
@@ -195,7 +264,12 @@ public class LectureService : ILectureService
     public async Task<LectureDTO?> GetLectureByIdAsync(int id)
     {
         Lecture? lecture = await _lectureRepository.GetLectureById(id);
-        if (lecture == null) { return null; }
+        if (lecture == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "GetLectureByIdAsync", "_lectureRepository.GetLectureById returns null", System.Diagnostics.Activity.Current?.Id);
+            return null; 
+        }
         LectureDTO lecDTO = _lectureMapper.MapToDTO(lecture);
         await AddTeachers(lecDTO);
         return lecDTO; 
@@ -215,15 +289,25 @@ public class LectureService : ILectureService
         return dTOs;
     }
 
-    public async Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string, int userId, string role)   // var: (string id_string)
+    public async Task<IEnumerable<LectureDTO>?> DeleteMultipleAsync(string id_string, int userId, string role)   
     {
         IEnumerable<int> ids = from str in id_string.Split(",") select Convert.ToInt32(str);
-        foreach(var id in ids)                                                                                      // NY
-        {                                                                                                           // NY
-            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;     // NY
-        }                                                                                                           // NY
+        foreach(var id in ids)                                                                                      
+        {                                                                                                           
+            if (!await _lectureRepository.IsOwner(userId, role, id, courseImplementationId: null)) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "LectureService", "DeleteMultipleAsync", "_lectureRepository.IsOwner returns false", System.Diagnostics.Activity.Current?.Id);
+                return null;
+            }     
+        }                                                                                                           
         IEnumerable<Lecture>? lectures = await _lectureRepository.DeleteMultipleAsync(ids);
-        if (lectures == null) return null;
+        if (lectures == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "LectureService", "DeleteMultipleAsync", "_lectureRepository.DeleteMultipleAsync returns null", System.Diagnostics.Activity.Current?.Id);
+            return null;
+        }
         return from lec in lectures select _lectureMapper.MapToDTO(lec);
     }
 
@@ -259,6 +343,5 @@ public class LectureService : ILectureService
 
         return s;
     }
-
     
 }

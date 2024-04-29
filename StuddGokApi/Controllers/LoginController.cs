@@ -9,9 +9,11 @@ namespace StuddGokApi.Controllers;
 public class LoginController : ControllerBase
 {
     private readonly ILoginService _loginService;
-    public LoginController(ILoginService loginService)
+    private readonly ILogger<LoginController> _logger;
+    public LoginController(ILoginService loginService, ILogger<LoginController> logger)
     {
         _loginService = loginService;
+        _logger = logger;
     }
 
     [HttpPost(Name = "Login")]
@@ -21,8 +23,22 @@ public class LoginController : ControllerBase
         {
             return BadRequest(ModelState);
         }
+
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+                "LoginController", "Login", $"/Login", "POST", "In", traceId);
+
         string? jwtToken = await _loginService.LoginAsync(loginDTO);
-        if (jwtToken == null) { return BadRequest("Invalid credentials"); }
+        if (jwtToken == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+                "LoginController", "Login", $"/Login", "POST", "Out", traceId, BadRequest().StatusCode);
+
+            return BadRequest("Invalid credentials"); 
+        }
+
+        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+            "LoginController", "Login", $"/Login", "POST", "Out", traceId, Ok().StatusCode);
         return Ok(jwtToken);
     }
 
