@@ -70,6 +70,16 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
         
         EntityEntry<Assignment> e = await _dbContext.Assignments.AddAsync(assignment);
         await _dbContext.SaveChangesAsync();
+        object o = e.Entity;
+        if ( o is Assignment)
+        {
+            Assignment ass = (Assignment)o;
+            int id = ass.Id;
+            return await _dbContext.Assignments
+                .Include(x => x.CourseImplementation)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
+        }
         return e.Entity;
     }
 
