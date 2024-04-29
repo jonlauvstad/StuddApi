@@ -15,6 +15,9 @@ namespace StuddGokApi.Repositories;
 
 public class ExamImplementationRepository : RepositoryBase, IExamImplementationRepository
 {
+    // ABOUT LOGGING: Just logging in the functions that may provide info beyond returning null/false (captured in the service layer)
+    //  The logging in the service layer has references to the functions here.
+
     public ExamImplementationRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger, AlertUserList alertUserList) 
         : base(dbContext, logger, alertUserList)
     {
@@ -166,7 +169,13 @@ public class ExamImplementationRepository : RepositoryBase, IExamImplementationR
 
     public async Task<bool> IsOwner(int userId, string role, int examId, int? courseImplementationId = null)
     {
-        return await IsOwnerOf(userId, role, examId, GetCourseImpId_FromObjectById, courseImplementationId);
+        bool isOwner = await IsOwnerOf(userId, role, examId, GetCourseImpId_FromObjectById, courseImplementationId);
+        if (!isOwner)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "ExamImplementationRepository", "IsOwner", $"userId:{userId} role:{role} examId:{examId} gives false", System.Diagnostics.Activity.Current?.Id);
+        }
+        return isOwner;
     }
 
     private async Task<int?> GetCourseImpId_FromObjectById(int examId)

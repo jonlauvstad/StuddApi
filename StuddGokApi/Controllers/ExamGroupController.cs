@@ -26,7 +26,14 @@ public class ExamGroupController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExamGroupDTO>>> GetExamGroups([FromQuery] int? examId=null, [FromQuery] int? userId=null, 
                                                                                 [FromQuery] string? name = null)
     {
-        return Ok(await _examGroupService.GetExamGroupsAsync(examId, userId, name));
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+                "ExamGroupController", "GetExamGroups", $"/ExamGroup", "GET", "In", traceId);
+
+        var groups = await _examGroupService.GetExamGroupsAsync(examId, userId, name);
+        _logger.LogDebug("Class:{class},Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}, NoGroups:{noVenues}",
+            "ExamGroupController", "GetExamGroups", $" /ExamGroup", "GET", "Out", traceId, 400, groups.Count() == 0);
+        return Ok(groups);
     }
 
     [Authorize(Roles = "admin, teacher")]
@@ -35,11 +42,24 @@ public class ExamGroupController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+                "ExamGroupController", "AddExamGroup", $"/ExamGroup/Exam/{examId}", "POST", "In", traceId);
+
         int userId = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
         IEnumerable<ExamGroupDTO>? examGroups = await _examGroupService.AddExamGroupAsync(userId, role, examId, exGrDTOs);
-        if (examGroups == null) return BadRequest("Kunne ikke registrere gruppen i databasen. Er navnet unikt?");
+
+        if (examGroups == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+                "ExamGroupController", "AddExamGroup", $"/ExamGroup/Exam/{examId}", "POST", "In", traceId, BadRequest().StatusCode);
+
+            return BadRequest("Kunne ikke registrere gruppen i databasen. Er navnet unikt?");
+        }
+        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+            "ExamGroupController", "AddExamGroup", $"/ExamGroup/Exam/{examId}", "POST", "Out", traceId, Ok().StatusCode);
         return Ok(examGroups);
     }
 
@@ -50,8 +70,21 @@ public class ExamGroupController : ControllerBase
         int userId = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
+
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+                "ExamGroupController", "RemoveExamGroupEntry", $"/ExamGroup/{id}", "DELETE", "In", traceId);
+
         ExamGroupDTO? examGroupDTO = await _examGroupService.RemoveExamGroupEntryAsync(userId, role, id);
-        if (examGroupDTO == null) return BadRequest("Kunne ikke fjerne gruppeoppføringen.");
+        if (examGroupDTO == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+                "ExamGroupController", "RemoveExamGroupEntry", $"/ExamGroup/{id}", "DELETE", "Out", traceId, BadRequest().StatusCode);
+
+            return BadRequest("Kunne ikke fjerne gruppeoppføringen.");
+        }
+        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+            "ExamGroupController", "RemoveExamGroupEntry", $"/ExamGroup/{id}", "DELETE", "Out", traceId, Ok().StatusCode);
         return Ok(examGroupDTO);
     }
 
@@ -61,11 +94,22 @@ public class ExamGroupController : ControllerBase
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+                "ExamGroupController", "AddOneExamGroup", $"/ExamGroup", "POST", "In", traceId);
+
         int userId = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
         ExamGroupDTO? examGroupDTO = await _examGroupService.AddOneExamGroupAsync(userId, role, examGroup);
-        if (examGroupDTO == null) return BadRequest("Kunne ikke registrere gruppeoppføringen.");
+        if (examGroupDTO == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+                "ExamGroupController", "AddOneExamGroup", $"/ExamGroup", "POST", "Out", traceId, BadRequest().StatusCode);
+            return BadRequest("Kunne ikke registrere gruppeoppføringen.");
+        }
+        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+            "ExamGroupController", "AddOneExamGroup", $"/ExamGroup", "POST", "Out", traceId, Ok().StatusCode);
         return Ok(examGroupDTO);
     }
 
@@ -73,9 +117,20 @@ public class ExamGroupController : ControllerBase
     [HttpDelete(Name = "DeleteExamGroupsByExamIdAndName")]
     public async Task<ActionResult<Dictionary<string, int>>> DeleteExamGroupsByExamIdAndName(int examId, string name)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+                "ExamGroupController", "DeleteExamGroupsByExamIdAndName", $"/ExamGroup", "DELETE", "In", traceId);
+
         int numDeleted = await _examGroupService.DeleteExamGroupsByExamIdAndNameAsync(examId, name);
-        if (numDeleted == 0) return BadRequest("Kunne ikke slette gruppen/gruppeoppføringene");
+        if (numDeleted == 0) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+                "ExamGroupController", "DeleteExamGroupsByExamIdAndName", $"/ExamGroup", "DELETE", "Out", traceId, BadRequest().StatusCode);
+            return BadRequest("Kunne ikke slette gruppen/gruppeoppføringene");
+        }
         Dictionary<string, int> returnDict = new Dictionary<string, int>() { { "numDeleted", numDeleted} };
+        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+            "ExamGroupController", "DeleteExamGroupsByExamIdAndName", $"/ExamGroup", "DELETE", "Out", traceId, Ok().StatusCode);
         return Ok(returnDict);
     }
 }

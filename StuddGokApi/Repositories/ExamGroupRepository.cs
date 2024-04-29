@@ -13,6 +13,9 @@ namespace StuddGokApi.Repositories;
 
 public class ExamGroupRepository : RepositoryBase, IExamGroupRepository
 {
+    // ABOUT LOGGING: No logging in this class, since it would not add to the information captured in the service layer
+    // - funcs here returning null or false. The logging in the service layer has references to the functions here.
+
     public ExamGroupRepository(StuddGokDbContext dbContext, ILogger<RepositoryBase> logger, AlertUserList alertUserList)
         : base(dbContext, logger, alertUserList)
     {

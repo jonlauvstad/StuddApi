@@ -28,13 +28,17 @@ public class ExamImplementationService : IExamImplementationService
     public async Task<IEnumerable<ExamImplementationDTO>> GetExamImpsByExamIdAsync(int examId)
     {
         return (await _examImpRepo.GetExamImpsByExamIdAsync(examId)).Select(x => _examImpMapper.MapToDTO(x));
-        //return from exImp in await _examImpRepo.GetExamImpsByExamIdAsync(examId) select _examImpMapper.MapToDTO(exImp);
     }
 
     public async Task<ExamImplementationDTO?> GetExamImplementationByIdAsync(int id)
     {
         ExamImplementation? exImp = await _examImpRepo.GetExamImplementationById(id);
-        if(exImp == null) { return null; }
+        if(exImp == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "ExamImplementationService", "GetExamImplementationByIdAsync", "_examImpRepo.GetExamImplementationById returns null", System.Diagnostics.Activity.Current?.Id);
+            return null; 
+        }
         return _examImpMapper.MapToDTO(exImp);
     }
 
@@ -45,9 +49,13 @@ public class ExamImplementationService : IExamImplementationService
         foreach (ExamImplementationDTO exImpDTO in examImpDTOs)
         {
             bool isOwner = await _examImpRepo.IsOwner(userId, role, exImpDTO.ExamId);
-            if (!isOwner) return null;
+            if (!isOwner) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamImplementationService", "AddExamImplementationsAndUserExamImplementationsAsync", "_examImpRepo.IsOwner returns false", System.Diagnostics.Activity.Current?.Id);
+                return null;
+            }
         }
-
 
         // Not Exam for 'ProgramCourses' simultaniously
         IEnumerable<int> distinctExamIds = examImpDTOs.Select(x => x.ExamId).Distinct();
@@ -55,24 +63,34 @@ public class ExamImplementationService : IExamImplementationService
         {
             if (!await _examImpRepo.ValidTime_ProgCourses_ExamImpAsync(exId, examImpDTOs))
             {
-                _logger.LogDebug("_____________OVERLAPPENDE TID!!!_______________");        
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamImplementationService", "AddExamImplementationsAndUserExamImplementationsAsync", "_examImpRepo.ValidTime_ProgCourses_ExamImpAsync returns false", System.Diagnostics.Activity.Current?.Id);
                 return null;
-            }
-                
+            }                
         }
 
         // CheckVenue 
         foreach (ExamImplementationDTO exImpDTO in examImpDTOs) 
         {
             var resCheck = await _venueRepository.CheckVenueAsync(exImpDTO.VenueId, exImpDTO.StartTime, exImpDTO.EndTime);
-            if (resCheck != null) return null;
+            if (resCheck != null) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamImplementationService", "AddExamImplementationsAndUserExamImplementationsAsync", "_venueRepository.CheckVenueAsync returns not null - meaning the venue is occupied", System.Diagnostics.Activity.Current?.Id);
+                return null;
+            }
         }
 
 
         List<ExamImplementation> exImps = examImpDTOs.Select(x => _examImpMapper.MapToModel(x)).ToList();
         List<List<int>> listOfPartipLists = examImpDTOs.Select(x => x.ParticipantIds).ToList();
         IEnumerable<ExamImplementation>? examImps = await _examImpRepo.AddExamImplementationsAndUserExamImplementationsAsync(exImps, listOfPartipLists);
-        if (examImps == null) return null;
+        if (examImps == null) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "ExamImplementationService", "AddExamImplementationsAndUserExamImplementationsAsync", "_examImpRepo.AddExamImplementationsAndUserExamImplementationsAsync returns null", System.Diagnostics.Activity.Current?.Id);
+            return null;
+        }
         return examImps.Select(x => _examImpMapper.MapToDTO(x));
     }
 
@@ -86,12 +104,22 @@ public class ExamImplementationService : IExamImplementationService
         foreach (ExamImplementation exImp in examImps)
         {
             bool isOwner = await _examImpRepo.IsOwner(userId, role, exImp.ExamId);
-            if (!isOwner) return null;
+            if (!isOwner) 
+            {
+                _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamImplementationService", "DeleteByExamIdAsync", "_examImpRepo.IsOwner returns false", System.Diagnostics.Activity.Current?.Id);
+                return null;
+            }
         }
 
         // Delete
         bool success =  await _examImpRepo.DeleteByExamIdAsync(examId);
-        if (!success) return null;
+        if (!success) 
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+            "ExamImplementationService", "DeleteByExamIdAsync", "_examImpRepo.DeleteByExamIdAsync returns false", System.Diagnostics.Activity.Current?.Id);
+            return null;
+        }
         return eximpDTOs;
     }
 }
