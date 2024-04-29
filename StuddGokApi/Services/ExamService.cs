@@ -4,6 +4,7 @@ using StuddGokApi.Models;
 using StuddGokApi.Repositories.Interfaces;
 using StuddGokApi.Services.Interfaces;
 using StudentResource.Models.POCO;
+using System.Diagnostics;
 
 namespace StuddGokApi.Services;
 
@@ -22,19 +23,50 @@ public class ExamService : IExamService
 
     public async Task<ExamDTO?> AddExamAsync(ExamDTO examDTO, int userId, string role)
     {
-        if (!await _examRepository.IsOwner(userId, role, examDTO.Id, courseImplementationId: examDTO.CourseImplementationId)) return null;
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+
+
+        if (!await _examRepository.IsOwner(userId, role, examDTO.Id, courseImplementationId: examDTO.CourseImplementationId))
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "AddExamAsync", "_examRepository.IsOwner returns false", traceId);
+            
+            return null;
+        }
 
         Exam? exam = await _examRepository.AddExamAsync(_mapper.MapToModel(examDTO));
-        if (exam == null) return null;
+
+        if (exam == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "AddExamAsync", "_examRepository.AddExamAsync returns null", traceId);
+
+            return null;
+        }
         return _mapper.MapToDTO(exam);
     }
 
     public async Task<ExamDTO?> DeleteExamAsync(int id, int userId, string role)
     {
-        if (!await _examRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+        if (!await _examRepository.IsOwner(userId, role, id, courseImplementationId: null))
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "DeleteExamAsync", "_examRepository.IsOwner returns false", traceId);
+
+            return null;
+        }
 
         Exam? exam = await _examRepository.DeleteExamAsync(id);
-        if (exam == null) return null;
+        if (exam == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "DeleteExamAsync", "_examRepository.DeleteExamAsync returns null", traceId); 
+
+            return null;
+        }
         return _mapper.MapToDTO(exam);
     }
 
@@ -46,17 +78,41 @@ public class ExamService : IExamService
 
     public async Task<ExamDTO?> GetExamAsync(int id)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+
         Exam? exam = await _examRepository.GetExamAsync(id);
-        if (exam == null) return null;
+        if (exam == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "GetExamAsync", "_examRepository.GetExamAsync returns null", traceId);
+
+            return null;
+        }
         return _mapper.MapToDTO(exam);
     }
 
     public async Task<ExamDTO?> UpdateExamAsync(int id, ExamDTO examDTO, int userId, string role)
     {
-        if (!await _examRepository.IsOwner(userId, role, id, courseImplementationId: null)) return null;
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+
+        if (!await _examRepository.IsOwner(userId, role, id, courseImplementationId: null))
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "UpdateExamAsync", "_examRepository.IsOwner returns false", traceId);
+
+            return null;
+        }
                                                             // kunne hatt courseImplementationId: examDTO.CourseImplementationId
         Exam? exam = await _examRepository.UpdateExamAsync(id, _mapper.MapToModel(examDTO));
-        if (exam == null) return null;
+        if (exam == null)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "ExamService", "UpdateExamAsync", "_examRepository.UpdateExamAsync returns null", traceId);
+
+            return null;
+        }
         return _mapper.MapToDTO(exam);
     }
 }

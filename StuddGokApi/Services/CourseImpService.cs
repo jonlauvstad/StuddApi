@@ -12,13 +12,15 @@ public class CourseImpService : ICourseImpService
     private readonly ICourseImpRepository _cimpRepo;
     private readonly IMapper<CourseImplementation, CourseImplementationDTO> _cimpMapper;
     private readonly IMapper<User, UserDTO> _userMapper;
+    private readonly ILogger<CourseImpService> _logger;
 
     public CourseImpService(ICourseImpRepository cimpRepo, IMapper<CourseImplementation, CourseImplementationDTO> cimpMapper,
-        IMapper<User, UserDTO> userMapper)
+        IMapper<User, UserDTO> userMapper, ILogger<CourseImpService> logger)
     {
         _cimpRepo = cimpRepo;
         _cimpMapper = cimpMapper;
         _userMapper = userMapper;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<CourseImplementationDTO>> GetCourseImpsAsync(DateTime? startDate, DateTime? endDate, 
@@ -30,8 +32,17 @@ public class CourseImpService : ICourseImpService
 
     public async Task<CourseImplementationDTO?> GetCourseImpByIdAsync(int id)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+
         CourseImplementation? ci = await _cimpRepo.GetCourseImpByIdAsync(id);
-        if (ci == null) { return null; }
+        if (ci == null) 
+        { 
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+                "CourseImpService", "GetCourseImpByIdAsync", "_cimpRepo.GetCourseImpByIdAsync returns null", traceId);
+
+            return null; 
+        }
         return _cimpMapper.MapToDTO(ci);
     }
 

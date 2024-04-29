@@ -22,8 +22,17 @@ public class CourseController : ControllerBase
     [HttpGet("{id}", Name = "GetCourseById")]
     public async Task<ActionResult<CourseDTO>> GetCourseImpById([FromRoute] int id)
     {
+        string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "CourseController", "GetCourseById", $"/Course/{id}", "GET", "In", traceId);
+
+
         CourseDTO? courseDTO = await _courseService.GetCourseByIdAsync(id);
         if (courseDTO == null) return NotFound($"Could not find courseimplementation with id {id}");
+
+        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+            "CourseController", "GetCourseById", $"/Course/{id}", "GET", "Out", traceId);
+
         return Ok(courseDTO);
     }
 }
