@@ -13,8 +13,7 @@ public interface IAssignmentRepository
 
     Task<Assignment?> AddAssignmentAsync(Assignment assignment, int userId, string role);
 
-    Task<Assignment?> UpdateAssignmentAsync(int id, Assignment assignment, int userId, string role);
-
+    Task<(bool success, string message, Assignment? assignment)> UpdateAssignmentAsync(int id, Assignment updateData, int userId, string role);
     Task<Assignment?> DeleteAssignmentAsync(int id, int userId, string role);
 
 

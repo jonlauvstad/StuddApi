@@ -19,10 +19,10 @@ public class CourseClient : ICourseClient
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
-            var course = JsonConvert.DeserializeObject<Course>(content); // Assuming you have a Course POCO
+            var course = JsonConvert.DeserializeObject<Course>(content); // Course POCO
             return course;
         }
 
-        return null; // Or handle errors as needed
+        return null; 
     }
 }

@@ -20,10 +20,10 @@ public class CourseImplementationClient : ICourseImplementationClient
         if (response.IsSuccessStatusCode)
         {
             var content = await response.Content.ReadAsStringAsync();
-            var courseImplementation = JsonConvert.DeserializeObject<CourseImplementation>(content); // Assuming you have a CourseImplementation POCO
+            var courseImplementation = JsonConvert.DeserializeObject<CourseImplementation>(content); //  CourseImplementation POCO
             return courseImplementation;
         }
 
-        return null; // Or handle errors as needed
+        return null; 
     }
 }

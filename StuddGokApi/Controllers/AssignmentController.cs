@@ -91,8 +91,7 @@ public class AssignmentController : ControllerBase
 
     [Authorize]
     [HttpPut("{id}", Name = "UpdateAssignment")]
-    public async Task<ActionResult<AssignmentDTO>> UpdateAssignment([FromRoute] int id, 
-                                                                    [FromBody] AssignmentDTO assignmentDTO)
+    public async Task<IActionResult> UpdateAssignment([FromRoute] int id, [FromBody] AssignmentDTO assignmentDTO)
     {
         string? traceId = System.Diagnostics.Activity.Current?.Id;
 
@@ -102,17 +101,46 @@ public class AssignmentController : ControllerBase
         int user_id = (int)HttpContext.Items["UserId"]!;
         string role = (string)HttpContext.Items["Role"]!;
 
-        AssignmentDTO? assignment = await _assignmentService.UpdateAssignmentAsync(id, assignmentDTO, user_id, role);
-        if ( assignment == null)
+        var (success, message, updatedAssignment) = await _assignmentService.UpdateAssignmentAsync(id, assignmentDTO, user_id, role);
+
+        if (!success)
         {
-            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
-                "AssignmentController", "UpdateAssignment", $"/Assignment/{id}", "PUT", "Out", traceId, NotFound().StatusCode);
-            return NotFound($"Kunne ikke finne arbeidskravet med id {id}");
+            _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}, Message:{message}",
+                "AssignmentController", "UpdateAssignment", $"/Assignment/{id}", "PUT", "Out", traceId, BadRequest().StatusCode, message);
+            return BadRequest(message);
         }
-        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+
+        _logger.LogInformation("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
             "AssignmentController", "UpdateAssignment", $"/Assignment/{id}", "PUT", "Out", traceId, Ok().StatusCode);
-        return Ok(assignment);
+        return Ok(updatedAssignment);
     }
+
+
+    //[Authorize]
+    //[HttpPut("{id}", Name = "UpdateAssignment")]
+    //public async Task<ActionResult<AssignmentDTO>> UpdateAssignment([FromRoute] int id,
+    //                                                            [FromBody] AssignmentDTO assignmentDTO)
+    //{
+    //    string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+    //    _logger.LogDebug("Class:{class}, Function:{function} Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}",
+    //        "AssignmentController", "UpdateAssignment", $"/Assignment/{id}", "PUT", "In", traceId);
+
+    //    int user_id = (int)HttpContext.Items["UserId"]!;
+    //    string role = (string)HttpContext.Items["Role"]!;
+
+    //    AssignmentDTO? assignment = await _assignmentService.UpdateAssignmentAsync(id, assignmentDTO, user_id, role);
+    //    if (assignment == null)
+    //    {
+    //        _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+    //            "AssignmentController", "UpdateAssignment", $"/Assignment/{id}", "PUT", "Out", traceId, NotFound().StatusCode);
+    //        return NotFound($"Kunne ikke finne arbeidskravet med id {id}");
+    //    }
+    //    _logger.LogDebug("Class:{class}, Function:{function}, Url:{url}, Method:{method}, InOut:{inOut},\n\t\tTraceId:{traceId}, StatusCode:{statusCode}",
+    //        "AssignmentController", "UpdateAssignment", $"/Assignment/{id}", "PUT", "Out", traceId, Ok().StatusCode);
+    //    return Ok(assignment);
+    //}
+
 
     [Authorize]
     [HttpDelete("{id}", Name = "DeleteAssignment")]
