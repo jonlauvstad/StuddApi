@@ -17,7 +17,7 @@ public class AlertRepository : IAlertRepository
     }
     public async Task<IEnumerable<Alert>> GetAlertsByUserIdAsync(int userId, bool seen)
     {
-        return await _dbContext.Alerts.Where(x => x.UserId == userId && x.Seen == seen).ToListAsync();
+        return await _dbContext.Alerts.Where(x => x.UserId == userId && x.Seen == seen).OrderByDescending(x => x.Time).ToListAsync();
     }
 
     public async Task<IEnumerable<Alert>?> UpdateUnseenAlertsByUserIdAsync(int userId)
