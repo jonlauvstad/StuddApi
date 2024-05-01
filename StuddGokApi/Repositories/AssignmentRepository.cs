@@ -97,34 +97,64 @@ public class AssignmentRepository : RepositoryBase, IAssignmentRepository
     }
 
 
-
-    public async Task<Assignment?> UpdateAssignmentAsync(int id, Assignment assignment, int userId, string role)
+    public async Task<(bool success, string message, Assignment? assignment)> UpdateAssignmentAsync(int id, Assignment updateData, int userId, string role)
     {
-        Assignment? a = await _dbContext.Assignments.FirstOrDefaultAsync(x => x.Id == id);
-        if (a == null) return null;
+        var assignment = await _dbContext.Assignments.FirstOrDefaultAsync(x => x.Id == id);
+        if (assignment == null) return (false, "Assignment not found", null);
 
+        bool isOwner = await IsOwner(userId, role, updateData.Id, updateData.CourseImplementationId);
+        if (!isOwner) return (false, "User is not authorized to update this assignment", null);
 
+        assignment.CourseImplementationId = updateData.CourseImplementationId;
+        assignment.Name = updateData.Name;
+        assignment.Deadline = updateData.Deadline;
+        assignment.Description = updateData.Description;
+        assignment.Mandatory = updateData.Mandatory;
 
-        bool isOwner = await IsOwner(userId, role, assignment.Id, assignment.CourseImplementationId);
-        if (!isOwner) return null;
-
-        a.CourseImplementationId = assignment.CourseImplementationId;
-        a.Name = assignment.Name;
-        a.Deadline = assignment.Deadline;
-        a.Description = assignment.Description;
-        a.Mandatory = assignment.Mandatory;
-
-        await _dbContext.SaveChangesAsync();
-
-        // Opprette og lagre alert
-        Alert alert = AlertFromAssignment(a, userId, EntityAction.deleted);
-        await _dbContext.Alerts.AddAsync(alert);
-        await _dbContext.SaveChangesAsync();
-
-
-        return a;
-
+        try
+        {
+            await _dbContext.SaveChangesAsync();
+            Alert alert = AlertFromAssignment(assignment, userId, EntityAction.updated);
+            await _dbContext.Alerts.AddAsync(alert);
+            await _dbContext.SaveChangesAsync();
+            return (true, "Assignment updated successfully", assignment);
+        }
+        catch (Exception ex)
+        {
+            return (false, $"Failed to update assignment: {ex.Message}", null);
+        }
     }
+
+
+
+
+    //public async Task<Assignment?> UpdateAssignmentAsync(int id, Assignment assignment, int userId, string role)
+    //{
+    //    Assignment? a = await _dbContext.Assignments.FirstOrDefaultAsync(x => x.Id == id);
+    //    if (a == null) return null;
+
+
+
+    //    bool isOwner = await IsOwner(userId, role, assignment.Id, assignment.CourseImplementationId);
+    //    if (!isOwner) return null;
+
+    //    a.CourseImplementationId = assignment.CourseImplementationId;
+    //    a.Name = assignment.Name;
+    //    a.Deadline = assignment.Deadline;
+    //    a.Description = assignment.Description;
+    //    a.Mandatory = assignment.Mandatory;
+
+    //    await _dbContext.SaveChangesAsync();
+
+    //    // Opprette og lagre alert
+    //    Alert alert = AlertFromAssignment(a, userId, EntityAction.updated);
+    //    await _dbContext.Alerts.AddAsync(alert);
+    //    await _dbContext.SaveChangesAsync();
+
+
+    //    return a;
+
+    //}
 
     public async Task<Assignment?> DeleteAssignmentAsync(int id, int userId, string role)
     {

@@ -14,7 +14,7 @@ public class StudentResourceModel
     public string Title { get; set; }
     public string Description { get; set; }
     public string URL { get; set; }
-    public int CourseId { get; set; } // This is a simple reference to associate resources with courses
+    public int CourseId { get; set; } // associate resource with course
 }
 
 

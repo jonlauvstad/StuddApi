@@ -64,20 +64,40 @@ public class AssignmentService : IAssignmentService
         return _assignmentMapper.MapToDTO(a);
     }
 
-    public async Task<AssignmentDTO?> UpdateAssignmentAsync(int id, AssignmentDTO assignmentDTO, int userId, string role)
+    public async Task<(bool success, string message, AssignmentDTO? assignmentDTO)> UpdateAssignmentAsync(int id, AssignmentDTO assignmentDTO, int userId, string role)
     {
         string? traceId = System.Diagnostics.Activity.Current?.Id;
+        _logger.LogDebug("Starting update for assignment with ID: {id}, TraceId: {traceId}", id, traceId);
 
-        Assignment? a = await _assignmentRepository.UpdateAssignmentAsync(id, _assignmentMapper.MapToModel(assignmentDTO), userId, role);
-        if (a == null) 
-        { 
-            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
-                "AssignmentService", "UpdateAssignmentAsync", "_assignmentRepository.UpdateAssignmentAsync returns null", traceId);
+        // Call to the repository method that now returns a tuple
+        var (success, message, assignment) = await _assignmentRepository.UpdateAssignmentAsync(id, _assignmentMapper.MapToModel(assignmentDTO), userId, role);
 
-            return null; 
+        if (!success)
+        {
+            _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg}, TraceId:{traceId}",
+                             "AssignmentService", "UpdateAssignmentAsync", message, traceId);
+            return (false, message, null);
         }
-        return _assignmentMapper.MapToDTO(a);
+
+        _logger.LogInformation("Successfully updated assignment with ID: {id}, TraceId: {traceId}", id, traceId);
+        return (true, "Assignment updated successfully", _assignmentMapper.MapToDTO(assignment));
     }
+
+
+    //public async Task<AssignmentDTO?> UpdateAssignmentAsync(int id, AssignmentDTO assignmentDTO, int userId, string role)
+    //{
+    //    string? traceId = System.Diagnostics.Activity.Current?.Id;
+
+    //    Assignment? a = await _assignmentRepository.UpdateAssignmentAsync(id, _assignmentMapper.MapToModel(assignmentDTO), userId, role);
+    //    if (a == null)
+    //    {
+    //        _logger.LogDebug("Class:{class}, Function:{function}, Msg:{msg},\n\t\tTraceId:{traceId}",
+    //            "AssignmentService", "UpdateAssignmentAsync", "_assignmentRepository.UpdateAssignmentAsync returns null", traceId);
+
+    //        return null;
+    //    }
+    //    return _assignmentMapper.MapToDTO(a);
+    //}
 
     public async Task<AssignmentDTO?> DeleteAssignmentAsync(int id, int userId, string role)
     {

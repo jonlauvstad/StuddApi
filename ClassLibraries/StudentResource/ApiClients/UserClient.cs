@@ -38,7 +38,7 @@ public class UserClient : IUserClient
             }
             else
             {
-                // Log error details
+                
                 Console.WriteLine($"Error: {content}");
                 return null;
             }
