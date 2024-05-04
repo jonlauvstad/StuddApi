@@ -230,6 +230,28 @@ public class ExamImplementationRepository : RepositoryBase, IExamImplementationR
         return await _dbContext.ExamImplementations.Where(x => examIds.Contains(x.ExamId)).ToListAsync();
     }
 
+    // NEW FUNC
+    private async Task<IEnumerable<Lecture>> GetLecturesForProgImpFromExamIdAsync(int examId)
+    {
+        Exam? exam = await _dbContext.Exams.FirstOrDefaultAsync(x => x.Id.Equals(examId));
+        if (exam == null) return Enumerable.Empty<Lecture>();
+        int progImpId =
+            (await _dbContext.ProgramCourses.FirstOrDefaultAsync(x => x.CourseImplementationId == exam.CourseImplementationId))!
+            .ProgramImplementationId;
+        IEnumerable<int> cimpIds = await
+            _dbContext.ProgramCourses.Where(x => x.ProgramImplementationId == progImpId).Select(e => e.CourseImplementationId)
+            .ToListAsync();
+        IEnumerable<int> lectureIds = await
+            _dbContext.Lectures.Where(x => cimpIds.Contains(x.CourseImplementationId)).Select(e => e.Id).ToListAsync();
+        return await _dbContext.Lectures.Where(x => lectureIds.Contains(x.Id)).ToListAsync();
+    }
+
+    // NEW FUNC
+    private bool NotValidTimeLecture(IEnumerable<Lecture> lectures, ExamImplementationDTO exImpDTO) 
+    {
+        return lectures.Any(x => x.StartTime < exImpDTO.EndTime && x.EndTime > exImpDTO.StartTime);
+    }
+
     private bool NotValidTime(IEnumerable<ExamImplementation> examImps, ExamImplementationDTO exImpDTO)
     {
         return examImps.Any(x => x.StartTime < exImpDTO.EndTime && x.EndTime > exImpDTO.StartTime);
@@ -243,6 +265,15 @@ public class ExamImplementationRepository : RepositoryBase, IExamImplementationR
             if (exImpDTO.ExamId != examId) continue;
             if (NotValidTime(exImps, exImpDTO)) return false;
         }
+
+        // NEW SECTION:
+        IEnumerable<Lecture> lectures = await GetLecturesForProgImpFromExamIdAsync(examId);     // NEW
+        foreach (ExamImplementationDTO exImpDTO in exImpDTOs)                                   // NEW
+        {                                                                                       // NEW
+            if (NotValidTimeLecture(lectures, exImpDTO)) return false;                          // NEW
+            _logger.LogDebug($"lectures.Count(): {lectures.Count()}");
+        }                                                                                       // NEW
+
         return true;
     }
 
